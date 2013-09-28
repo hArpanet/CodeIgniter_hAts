@@ -8,7 +8,7 @@
  * @copyright	Copyright (c) 2012+, hArpanet
  * @license		http://codeigniter.com/user_guide/license.html
  * @link		http://harpanet.com
- * @version		Version 1.6.1 / 130502
+ * @version		Version 1.6.2 / 130928
  *
  * @requires	GLOBAL PROPERTY ARRAY $hAtsData[] to be present and set in your controller (see _checkTplVar below)
  *
@@ -52,6 +52,7 @@
  */
 
 define("TPLVAR", 		'hATS');	// the array key (in $hAtsData) used to store all template values
+define("hAts_DEBUG",	/**/ FALSE /*/ TRUE /**/);		// either use tplSet('debug', true) or set it manually here
 
 /*
  * INTERNAL FUNCTIONS - used by other hATS functions
@@ -69,7 +70,13 @@ if (!function_exists('_tplDebug'))
 	 */
 	{
 		// set debugging on or off
-		$ENABLED = /**/ FALSE /*/ TRUE /**/;
+		if (tplGet('debug') === TRUE) {
+			// enabled via template var
+			$ENABLED = tplGet('debug');
+		} else {
+			// use global setting
+			$ENABLED = hAts_DEBUG;
+		}
 
 		if ( $ENABLED && $msg ) {
 			echo "<div style='color:grey; clear:both;'>$msg</div>";

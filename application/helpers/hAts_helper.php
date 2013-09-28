@@ -64,7 +64,7 @@ if (!function_exists('_tplDebug'))
 	function _tplDebug( $msg="" )
 	/**
 	 * Enable/Disable output of template debug messages
-	 * @version	14-Jun-2012
+	 * @version	28-Sep-2013
 	 *
 	 * @return	bool	current setting 	(True = enabled, False = disabled)
 	 */
@@ -73,6 +73,7 @@ if (!function_exists('_tplDebug'))
 		if (tplGet('debug') === TRUE) {
 			// enabled via template var
 			$ENABLED = tplGet('debug');
+
 		} else {
 			// use global setting
 			$ENABLED = hAts_DEBUG;

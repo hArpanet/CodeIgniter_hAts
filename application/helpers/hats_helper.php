@@ -8,7 +8,7 @@
  * @copyright	Copyright (c) 2012+, hArpanet
  * @license		http://codeigniter.com/user_guide/license.html
  * @link		http://harpanet.com
- * @version		Version 1.7.0 / 131009
+ * @version		Version 1.7.1 / 131029
  *
  * @requires	GLOBAL PROPERTY ARRAY $hAtsData[] to be present and set in your controller (see _checkTplVar below)
  *
@@ -33,9 +33,9 @@
  * @method		tplGetPartAsHtml( $part )								- v1.5.4
  * @method		tplResponse_message( )									- v1.5.x modified v1.6.1 added jQuery fadout to messages
  *
- * @method		_tplGetThemeFile($type="", $file="", $in_parts_subdir)	- v1.2.0 modified in v1.5.6 @TODO: change in_parts_subdir to TRUE
- * @method		_get_parts_dir( $in_parts_subdir )						- v1.5.6
+ * @method		_tplGetThemeFile($type="", $file="", $in_parts_subdir)	- v1.2.0 modified in v1.5.6
  * @method 		_addSlash($string, $trim)								- v1.7.0 added
+ * @method 		_tplFindFile($file)										- v1.7.0 added
  *
  * @example		In your Controller, use: 	tplSet('varName',	'var content');
  * @example		In your Views, use: 		<?php echo tplGet('varName'); ?>
@@ -195,25 +195,7 @@ if (!function_exists('tplPartsPath'))
 		_tplDebug( "LOOKING FOR:".$newfile );
 		_tplDebug( "REAL PATH=".realpath($newfile) );
 
-		// SEARCH for specified file
-		// use for-loop instead of while to prevent against infinite loop when searching
-		// we will only traverse back 100 parent folders maximum
-		for ( $lwp=100; $lwp>0; $lwp-- )
-		{
-			// see if the file exists at the new filepath
-			if ( file_exists($newfile) )
-			{
-				// file found, quit looking
-				$file = $newfile;
-				break;
-			}
-			// get parent location
-			$newfile = dirname(dirname($newfile))."/".basename($newfile);
-		}
-
-		_tplDebug( "FOUND:".$newfile );
-
-		return $newfile;
+		return _tplFindFile($newfile);
 	}
 }
 
@@ -959,8 +941,8 @@ if (!function_exists('tplResponse_message'))
 if (!function_exists('_tplGetThemeFile'))
 {
 	/**
-	 * main handler to return a fully qualified path to a current theme file
-	 * @version	14-Jun-2012
+	 * main handler to return a fully qualified path to file within the current theme
+	 * @version	29-Oct-2013
 	 *
 	 * @param	string	$type				'css', 'js', or 'img' (or anything you want to specify, e.g. 'media', etc.)
 	 * @param	string	$file				filename (eg. 'style.css')
@@ -971,86 +953,110 @@ if (!function_exists('_tplGetThemeFile'))
 	 */
 	function _tplGetThemeFile($type="", $file="", $in_parts_subdir=TRUE)
 	{
-		$ci=& get_instance();
-
+		// @TODO remove this block
+		//
 		// get current webroot
-		// @TODO remove reference to webRoot
-		$webRoot = $ci->config->item('webRoot');
-		if ( empty($webRoot) ) $webroot = './';
+		// will default to ./ but if this is failing to find correct path,
+		// you can specify a full path as 'webRoot' in the config.php file
+		// $ci=& get_instance();
+		// $webRoot = $ci->config->item('webRoot');
+		// if ( empty($webRoot) ) $webroot = './';
 
 		$theme = _addSlash(_addSlash(tplGet('themePath')).tplGet('theme'));
 
-		// @TODO this doesn't make sense!!!...
-		// are we adding the Parts subfolder to the path?
-		$part = _get_parts_dir( $in_parts_subdir );
-		if (! empty($part))
-			$part = _get_parts_dir($part);
+		$type = (empty($type)) ? "" : _addSlash($type);
 
-		return $webRoot.$theme.$part.$type."/".$file;
+		$part = ($in_parts_subdir) ? tplGet('parts') : '';
+
+		if (! empty($part)) {
+			$part = _addSlash($part);
+		}
+
+		return _tplFindFile($theme.$type.$part.$file);
 	}
 }
 
-/**
- * Return the Parts name if required
- * @version	10-Sept-2012
- *
- * @param 	bool 	$in_parts_subdir	Flag indicating whether to return the Part name or not
- * @return	string						name of parts dir with leading slash, or blank
- */
-function _get_parts_dir( $in_parts_subdir=TRUE )
+
+if (!function_exists('_addSlash'))
 {
-	// @TODO find out why this function exists. Should we rewrite to remove need to get('part')
-	//  	 in all other functions by calling this function instead, or is that just overkill?
+	/**
+	 * Add slash to end of string
+	 * @version 30-Sep-2013
+	 *
+	 * @param string $string  String to append slash to
+	 * @param bool   $trim 	  Should the string be trimmed first
+	 *
+	 * @return string 			String with ending slash
+	 */
+	function _addSlash($string, $trim=TRUE) {
+		if ($trim)
+			$string = trim($string);
 
-	$parts = '';
-	if ($in_parts_subdir)
-	{
-		$parts = tplGet('parts');
+		if ('/' != substr($string, -1))
+			$string .= '/';
+
+		return $string;
 	}
-
-	return $parts;
 }
 
-/**
- * Add slash to end of string
- * @version 30-Sep-2013
- *
- * @param string $string  String to append slash to
- * @param bool   $trim 	  Should the string be trimmed first
- *
- * @return string 			String with ending slash
- */
-function _addSlash($string, $trim=TRUE) {
-	if ($trim)
-		$string = trim($string);
+if (!function_exists('_addFileExt'))
+{
+	/**
+	 * Append file extension to filename
+	 * @version 07-Oct-2013
+	 *
+	 * @param string $file Original file path/name
+	 * @param string $ext  File extension to be added. Defaults to .phtml
+	 *
+	 * @return  string Filename with file extension
+	 */
+	function _addFileExt($file, $ext='phtml', $force = FALSE) {
+		$file = trim($file);
 
-	if ('/' != substr($string, -1))
-		$string .= '/';
+		// add extension if one not present
+		if ('' == pathinfo($file, PATHINFO_EXTENSION) OR $force)
+		{
+			return $file.'.'.$ext;
+		}
 
-	return $string;
+		// already has a file extension, so just return original name
+		return $file;
+	}
 }
 
 
-/**
- * Append file extension to filename
- * @version 07-Oct-2013
- *
- * @param string $file Original file path/name
- * @param string $ext  File extension to be added. Defaults to .phtml
- *
- * @return  string Filename with file extension
- */
-function _addFileExt($file, $ext='phtml', $force = FALSE) {
-	$file = trim($file);
+if (!function_exists('_tplFindFile'))
+{
+	/**
+	 * Look for the specified $file. If not found, traverse parent folder until found.
+	 * @version	29-Oct-2013
+	 *
+	 * @param	string	$file			filename requested, including path
+	 *
+	 * @return	string					path of found file
+	 */
+	function _tplFindFile($file) {
 
-	// add extension if one not present
-	if ('' == pathinfo($file, PATHINFO_EXTENSION) OR $force)
-	{
-		return $file.'.'.$ext;
+		// SEARCH for specified file
+		// use for-loop instead of while to prevent against infinite loop when searching
+		// we will only traverse back 50 parent folders maximum
+
+		for ( $lwp=50; $lwp>0; $lwp-- )
+		{
+			// see if the file exists at the new filepath
+			if ( file_exists($file) )
+			{
+				// file found, quit looking
+				break;
+			}
+			// get parent location
+			$file = dirname(dirname($file))."/".basename($file);
+		}
+
+		_tplDebug( "FINDFILE FOUND: ".$file );
+
+		return $file;
 	}
-
-	// already has a file extension, so just return original name
-	return $file;
 }
 
 /* End of file: hats_helper.php */

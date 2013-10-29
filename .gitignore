@@ -195,7 +195,8 @@ $RECYCLE.BIN/
 dist/
 build/
 eggs/
-parts/
+# hArpanet disabled parts exclusion, 29-Oct-2013
+# parts/
 var/
 sdist/
 develop-eggs/

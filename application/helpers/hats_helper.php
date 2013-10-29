@@ -220,14 +220,14 @@ if (!function_exists('tplPartsPath'))
 
 /*
  * STYLESHEET HANDLING
- * ==========
+ * ===================
  */
 
 if (!function_exists('tplStylesheet'))
 {
 	/**
 	 * Return a fully qualified HTML element for the specified stylesheet file (in the current theme)
-	 * @version	09-Oct-2013
+	 * @version	29-Oct-2013
 	 *
 	 * @param	string	$file				path/name of stylesheet - without (or with .css) (eg. style or style.css)
 	 * @param	bool	$in_parts_subdir	Are stylesheet files in subfolders named after Parts setting?
@@ -243,10 +243,7 @@ if (!function_exists('tplStylesheet'))
 		if ( ! $file == '' )
 		{
 			// add .css to filename if not already present
-			if ('css' != pathinfo($file, PATHINFO_EXTENSION))
-			{
-				$file = trim($file).".css";
-			}
+			$file = _addFileExt($file, 'css');
 
 			if ($in_theme)
 			{
@@ -351,7 +348,7 @@ if (!function_exists('tplJavascript'))
 {
 	/**
 	 * Return a fully qualified HTML element for a javascript file in the current theme
-	 * @version	14-Jun-2012
+	 * @version	29-Oct-2013
 	 *
 	 * @param	string	file				path/name of javascript (eg. jQuery.js or just jQuery)
 	 * @param	bool	$in_theme			Is javascript located in theme folder? Yes=True, No=False
@@ -417,10 +414,7 @@ if (!function_exists('tplJavascriptParsed'))
 		if ( ! empty($file))
 		{
 			// add .js to filename if not already present
-			if ('js' != pathinfo($file, PATHINFO_EXTENSION))
-			{
-				$file = trim($file).".js";
-			}
+			$file = _addFileExt($file, 'js');
 
 			_tplDebug( "JAVASCRIPT PARSED: ".$file );
 
@@ -551,7 +545,7 @@ if (!function_exists('tplAddJavascript'))
 
 /*
  * IMAGE HANDLING
- * =====
+ * ==============
  */
 
 if (!function_exists('tplImage'))
@@ -593,7 +587,7 @@ if (!function_exists('tplImage'))
 
 /*
  * VARIABLE HANDLING
- * ========
+ * =================
  */
 
 if (!function_exists('tplSet'))
@@ -707,7 +701,7 @@ if (!function_exists('tplGet'))
 		_checkTplVar();
 
 		$CI =& get_instance();
-//
+
 		// hAtsData should always be an array, but check anyway to prevent error
 		if ( is_array($CI->hAtsData) )
 		{
@@ -769,7 +763,7 @@ if (!function_exists('tplGetOr'))
 
 /*
  * PARTS HANDLING
- * =====
+ * ==============
  */
 
 if (!function_exists('tplAddPart'))

@@ -3,78 +3,58 @@ Theme Name: Default
 Theme URI:
 Author: hArpanet.com
 Author URI: http://harpanet.com/
-Description:
-Version: 0.1
+Description: stylesheet for hArpanet Template System
+Version: 0.2
 License: GNU General Public License
 License URI: license.txt
 Tags:
 */
 @import url(reset.css);
-@import url(http://fonts.googleapis.com/css?family=Chewy);
 
 body {
-	/* font:12px/1.5 'Trebuchet MSe', Arial, 'Liberation Sans', FreeSans, sans-serif; */
+	/*background:url(../img/body-bg.png);*/
 	font-family: sans-serif, cursive;
-	background:url(../img/bg.png) !important;
-	padding-bottom:50px;
-	color:#6b6a6a;
+	padding: 20px 0px 50px 0px;
+	color: #6b6a6a;
+	width: 800px;
+	margin: 0px auto;
 }
 
-#top_bar {
-	background:url(../img/top-corner.png) no-repeat;
-	width:1000px;
-	height:17px;
-	margin:0 auto;
-	margin-top:20px;
-}
-#bottom_bar {
-	background:url(../img/bottom-corner.png) no-repeat;
-	width:993px;
-	height:14px;
-	margin:0 auto;
-}
-#header_wrapper {
-	background:url(../img/background.png) repeat-y;
-	width:1000px;
-	margin:0 auto;
-	padding-bottom: 15px;
+
+.divider {
+	border-bottom: 10px solid silver;
 }
 
-#logo_wrapper {
-	padding: 0px 20px;
+#mainheading {
+	padding-bottom: 20px;
 }
 
-#body_wrapper {
-	background:url(../img/background.png) repeat-y;
-	width:1000px;
-	margin:0 auto;
-	padding:20px 0px;
+#banner h1 {
+	background-color: darkgreen;
+	color: white;
+	padding: 50px;
+	font: bolder 2em Mondo, Arial;
+}
+
+#logo {
+	padding: 20px 50px 0px 0px;
+	float: right;
 }
 
 #main_wrapper {
 	margin-left: auto;
 	margin-right: auto;
-	width: 960px;
+	width: 800px;
+	background-color: white;
+	padding: 20px;
 }
 
 #footer_wrapper {
-	width:993px;
-	margin:0 auto;
-	background:url(../img/footer-bg.png);
-	overflow:hidden;
+	padding-top: 20px;
 }
-#footer_wrapper a, #footer_wrapper {color:#808080;}
-#footer_wrapper #footer {padding-top:40px;padding-bottom:20px;overflow:hidden;}
-#footer_wrapper #footer h1, .footer_wrapper .footer h2, .footer_wrapper .footer h3, .footer_wrapper .footer h4, .footer_wrapper .footer h5, .footer_wrapper .footer h6 {color:#000;}
-#footer_wrapper #footer ul li {margin-left:15px;margin-bottom: 10px;}
-#footer_wrapper #footer_bottom {background:url(../img/footer-bottom-bg.png);padding-top: 10px;}
-#footer_line {background:url(../img/footer-line.png) repeat-x;height:1px;width:100%;}
-#footer_wrapper #footer_bottom .footer_desc{float: left;margin-right: 20px;margin-top:2px;}
-#footer_wrapper #copyright {text-align: center; font-family: 'Chewy'}
-#footer_container {padding:20px;}
 
-.footer_glow {background: url(../img/footer-bottom-line.png) repeat-x;height:2px;width:993px;margin:0 auto;}
-
-h1 {font: bolder 3em Chewy, Arial; padding-bottom: 25px; }
-
-#logo {float: right;}
+#copyright {
+	font-size: .8em;
+	font-style: italic;
+	text-align: center;
+}

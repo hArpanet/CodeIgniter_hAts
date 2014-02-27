@@ -3,51 +3,54 @@
 /**
  * hArpanet Template System (hATS) helper
  *
- * @package		hATS
- * @author		DH
- * @copyright	Copyright (c) 2012+, hArpanet
- * @license		http://codeigniter.com/user_guide/license.html
- * @link		http://harpanet.com
- * @version		Version 1.7.1 / 131029
+ * @TODO Change order of parameters - put $in_theme before $in_parts_subdir in all functions!
  *
- * @requires	GLOBAL PROPERTY ARRAY $hAtsData[] to be present and set in your controller (see _checkTplVar below)
+ * @package     hATS
+ * @author      DH
+ * @copyright   Copyright (c) 2012+, hArpanet
+ * @license     http://codeigniter.com/user_guide/license.html
+ * @link        http://harpanet.com
+ * @version     Version 2.0.0 / 140225
  *
- * @method		tplSetTemplate	( $theme, $parts )						- v1.5.0
- * @method		tplPartsPath	( $file, $in_theme, $use_baseurl )		- v1.7.0 new name for tplGetPath
- * @method		tplGetPath		( $file, $in_theme, $use_baseurl )		- v1.5.0 removed in v1.7.0
- * @method		tplStylesheet	( $file, $in_parts_subdir, $in_theme )	- v1.5.0 modified v1.7.0 changed parameter order & defaults
- * @method		tplStylesheets	( )										- v1.5.2 modified v1.7.0 now also processes css outside theme
- * @method		tplAddStylesheet( $css )								- v1.5.2
- * @method		tplJavascript	( $file, $in_parts_subdir, $in_theme )	- v1.5.0 modified v1.7.0 changed parameter order & defaults
- * @method		tplJavascriptParsed	( $file, $in_parts_subdir, $in_theme )	- v1.6.0 modified v1.7.0 changed parameter order & defaults
- * @method		tplJavascripts	( )										- v1.5.3 modified v1.7.0 now also processes js outside theme
- * @method		tplAddJavascript( $js, $in_parts_subdir, $in_theme )	- v1.5.3 modified v1.7.0 added theme & parts parameters
- * @method		tplImage		( $file, $in_parts_subdir, $in_theme )	- v1.5.0 modified v1.7.0 changed parameter order & defaults
- * @method		tplSet			( $var, $val, $elem )					- v1.1.0 modified v1.5.7
- * @method		tplAdd			( $var, $val, $nl )						- v1.1.0
- * @method		tplGet			( $var [,$elem] )						- v1.1.0
- * @method		tplGetOr		( $var, $or )							- v1.5.11 added
- * @method		tplAddPart		( $part, $data )						- v1.5.1 modified v1.7.0 - added $data param
- * @method		tplGetParts		( )										- v1.5.1 modified v1.7.0 - runs tplSet() against any $data
- * @method		tplGetPart		( $part )								- v1.5.0 modified v1.5.4
- * @method		tplGetPartAsHtml( $part )								- v1.5.4
- * @method		tplResponse_message( )									- v1.5.x modified v1.6.1 added jQuery fadout to messages
+ * @requires    GLOBAL PROPERTY ARRAY $hAtsData[] to be present and set in your controller (see _checkTplVar below)
  *
- * @method		_tplGetThemeFile($type="", $file="", $in_parts_subdir)	- v1.2.0 modified in v1.5.6
- * @method 		_addSlash($string, $trim)								- v1.7.0 added
- * @method 		_tplFindFile($file)										- v1.7.0 added
+ * @method      tplSetTemplate  ( $theme, $parts )                      - v1.5.0 modified v1.8.0 fixed bugs with default values
+ * @method      tplPartsPath    ( $file, $in_theme, $use_baseurl )      - v1.7.0 modified v1.8.0 fixed path bugs
+ * @method      tplGetPath      ( $file, $in_theme, $use_baseurl )      - v1.5.0 removed in v1.7.0
+ * @method      tplStylesheet   ( $file, $in_parts_subdir, $in_theme )  - v1.5.0 modified v1.7.0 changed parameter order & defaults
+ * @method      tplStylesheets  ( )                                     - v1.5.2 modified v1.7.0 now also processes css outside theme
+ * @method      tplAddStylesheet( $css )                                - v1.5.2
+ * @method      tplJavascript   ( $file, $in_parts_subdir, $in_theme )  - v1.5.0 modified v1.7.0 changed parameter order & defaults
+ * @method      tplJavascriptParsed ( $file, $in_parts_subdir, $in_theme )  - v1.6.0 modified v1.7.0 changed parameter order & defaults
+ * @method      tplJavascripts  ( )                                     - v1.5.3 modified v1.7.0 now also processes js outside theme
+ * @method      tplAddJavascript( $js, $in_parts_subdir, $in_theme )    - v1.5.3 modified v1.7.0 added theme & parts parameters
+ * @method      tplImage        ( $file, $in_parts_subdir, $in_theme )  - v1.5.0 modified v1.7.0 changed parameter order & defaults
+ * @method      tplSet          ( $var, $val, $elem )                   - v1.1.0 modified v1.5.7
+ * @method      tplAdd          ( $var, $val, $nl )                     - v1.1.0
+ * @method      tplGet          ( $var [,$elem] )                       - v1.1.0
+ * @method      tplGetOr        ( $var, $or )                           - v1.5.11 added
+ * @method      tplAddPart      ( $part, $data )                        - v1.5.1 modified v1.7.0 - added $data param
+ * @method      tplGetParts     ( )                                     - v1.5.1 modified v1.7.0 - runs tplSet() against any $data
+ * @method      tplGetPart      ( $part )                               - v1.5.0 modified v1.5.4
+ * @method      tplGetPartAsHtml( $part )                               - v1.5.4
+ * @method      tplResponse_message( )                                  - v1.5.x modified v1.6.1 added jQuery fadout to messages
  *
- * @example		In your Controller, use: 	tplSet('varName',	'var content');
- * @example		In your Views, use: 		<?php echo tplGet('varName'); ?>
+ * @method      _tplGetThemeFile($type='', $file='', $in_parts_subdir)  - v1.2.0 modified v1.7.2 code tidying
+ * @method      _addSlash($string, $trim)                               - v1.7.0 added
+ * @method      _makePath(<multiple params>)                            - v1.8.0 added
+ * @method      _tplFindFile($file)                                     - v1.7.0 added
  *
- * @note		RESERVED TEMPLATE VARIABLES for tplSet / tplGet
- * @note			['theme']		- name of theme in use
- * @note			['themePath']	- location (folder name) of theme files
- * @note			['parts']		- name of part in use
- * @note			['partsPath']	- location (folder name) of parts files
- * @note			['viewPart']	- array containing names of view parts to display - use tplAddPart() & tplGetPart()
- * @note			['css']			- array containing names of css files to display - use tplAddStylesheet()
- * @note			['js']			- array containing names of js  files to output  - use tplAddJavascript()
+ * @example     In your Controller, use:    tplSet('varName',   'var content');
+ * @example     In your Views, use:         <?php echo tplGet('varName'); ?>
+ *
+ * @note        RESERVED TEMPLATE VARIABLES for tplSet / tplGet
+ * @note            ['theme']       - name of theme in use
+ * @note            ['themePath']   - location (folder name) of theme files
+ * @note            ['parts']       - name of part in use
+ * @note            ['partsPath']   - location (folder name) of parts files
+ * @note            ['viewPart']    - array containing names of view parts to display - use tplAddPart() & tplGetPart()
+ * @note            ['css']         - array containing names of css files to display - use tplAddStylesheet()
+ * @note            ['js']          - array containing names of js  files to output  - use tplAddJavascript()
  */
 
 /*
@@ -55,8 +58,8 @@
  * =================
  */
 
-define("TPLVAR", 		'hATS');	// the array key (in $hAtsData) used to store all template values
-define("hAts_DEBUG",	/**/ FALSE /*/ TRUE /**/);		// either use tplSet('debug', true) or set it manually here (delete a * from opening /**/)
+define('TPLVAR',        'hATS');    // the array key (in $hAtsData) used to store all template values
+define('hAts_DEBUG',    /**/ FALSE /*/ TRUE /**/);      // either use tplSet('debug', true) or set it manually here (delete a * from opening /**/)
 
 /*
  * INTERNAL FUNCTIONS - used by other hATS functions
@@ -65,50 +68,50 @@ define("hAts_DEBUG",	/**/ FALSE /*/ TRUE /**/);		// either use tplSet('debug', t
 
 if (!function_exists('_tplDebug'))
 {
-	function _tplDebug( $msg="" )
-	/**
-	 * Enable/Disable output of template debug messages
-	 * @version	14-Jun-2012
-	 *
-	 * @return	bool	current setting 	(True = enabled, False = disabled)
-	 */
-	{
-		// set debugging on or off
-		if (tplGet('debug') === TRUE) {
-			$ENABLED = tplGet('debug');
-		} else {
-			// use global setting
-			$ENABLED = hAts_DEBUG;
-		}
+    function _tplDebug( $msg='' )
+    /**
+     * Enable/Disable output of template debug messages
+     * @version 14-Jun-2012
+     *
+     * @return  bool    current setting     (True = enabled, False = disabled)
+     */
+    {
+        // set debugging on or off
+        if (tplGet('debug') === TRUE) {
+            $ENABLED = tplGet('debug');
+        } else {
+            // use global setting
+            $ENABLED = hAts_DEBUG;
+        }
 
-		if ( $ENABLED && $msg ) {
-			echo "<div style='color:grey; clear:both; font-size:10px;'>$msg</div>";
-		}
+        if ( $ENABLED && $msg ) {
+            echo "<div style='color:grey; clear:both; font-size:10px;'>{$msg}</div>";
+        }
 
-		return $ENABLED;
-	}
+        return $ENABLED;
+    }
 }
 
 if (!function_exists('_checkTplVar'))
 {
-	/**
-	 * Check if the tplvar array element exists and create it if it doesn't
-	 * @version	11-Sept-2012
-	 *
-	 * @return			$this
-	 */
-	function _checkTplVar()
-	{
-		$ci=& get_instance();
+    /**
+     * Check if the tplvar array element exists and create it if it doesn't
+     * @version 11-Sept-2012
+     *
+     * @return          $this
+     */
+    function _checkTplVar()
+    {
+        $ci=& get_instance();
 
-		if ( !isset($ci->hAtsData) ) exit('ERROR: GLOBAL PROPERTY ARRAY $hAtsData[] DOES NOT EXIST IN YOUR CONTROLLER. hATS CANNOT CONTINUE. Add: var $hAtsData = array(); to fix.');
+        if ( !isset($ci->hAtsData) ) exit('ERROR: GLOBAL PROPERTY ARRAY $hAtsData[] DOES NOT EXIST IN YOUR CONTROLLER. hATS CANNOT CONTINUE. Add: var $hAtsData = array(); to fix.');
 
-		if ( !isset($ci->hAtsData[TPLVAR]) ) {
-			$ci->hAtsData[TPLVAR] = array();
-		}
+        if ( !isset($ci->hAtsData[TPLVAR]) ) {
+            $ci->hAtsData[TPLVAR] = array();
+        }
 
-		//		return $this;
-	}
+        //      return $this;
+    }
 }
 
 /*
@@ -118,85 +121,75 @@ if (!function_exists('_checkTplVar'))
 
 if (!function_exists('tplSetTemplate'))
 {
-	/**
-	 * Set names of theme and parts to use
-	 * @version	11-Sept-2012
-	 *
-	 * @param	string	$theme	name of theme
-	 * @param	string	$parts	name of parts
-	 * @return			$this
-	 *
-	 * NOTE:
-	 * Although the default folders are specified here as '/theme/'
-	 * and '/parts/' they can be overridden in the application
-	 * controller by specifying new ones (using tplSet lines similar
-	 * to those used below)
-	 */
-	function tplSetTemplate($theme = "default", $parts="default")
-	{
-		// default paths if not already set
-		if ('' == tplGet('themePath'))
-			tplSet('themePath','theme');
+    /**
+     * Set names of theme and parts to use
+     * @version 25-Feb-2014
+     *
+     * @param   string  $theme  name of theme
+     * @param   string  $parts  name of parts
+     * @return          $this
+     *
+     * NOTE:
+     * The default folders can be overridden in the application
+     * controller by specifying new ones (using tplSet lines similar
+     * to those used below)
+     */
+    function tplSetTemplate( $theme='hAts_default', $parts='hAts_default' )
+    {
+        // default paths if not already set
+        if ('' == tplGet('themePath'))
+            tplSet('themePath','hAts/theme');
 
-		if ('' == tplGet('partsPath'))
-				tplSet('partsPath','parts');
+        if ('' == tplGet('partsPath'))
+                tplSet('partsPath','hAts/parts');
 
-		tplSet('theme', $theme);
-		tplSet('parts', $parts);
-	}
+        if ('' == tplGet('theme') OR $theme != 'hAts_default')
+                tplSet('theme', $theme);
+
+        if ('' == tplGet('parts') OR $parts != 'hAts_default')
+                tplSet('parts', $parts);
+    }
 }
 
 if (!function_exists('tplPartsPath'))
 {
-	/**
-	 * Get the path to a specified PARTS file using traversal
-	 * @version	13-Nov-2012
-	 *
-	 * @param	string	$file			filename requested, including path
-	 * @param	bool	$use_baseurl	(default TRUE) base_url() is prepended to $file path
-	 *                          		if TRUE, partsPath contains just the folder name of the parts
-	 *                          		if FALSE, partsPath must contain a full path to parts folder
-	 *
-	 * @return	string					path to found file
-	 */
-	function tplPartsPath( $file="", $use_baseurl=TRUE )
-	{
-		$newfile = "";
-		$baseurl = "";
+    /**
+     * Get the path to a specified PARTS file using traversal
+     * @version 25-Feb-2014
+     *
+     * @param   string  $file           filename requested, including path
+     * @param   bool    $use_baseurl    (default TRUE) base_url() is prepended to $file path
+     *                                  if TRUE, partsPath contains just the folder name of the parts
+     *                                  if FALSE, partsPath must contain a full path to parts folder
+     *
+     * @return  string                  path to found file
+     */
+    function tplPartsPath( $file='', $use_baseurl=true )
+    {
+        $newfile = '';
 
-		// if paths not already set, set default ones
-		if (tplGet('themePath') == '' && tplGet('partsPath') == '')
-			tplSetTemplate();
+        // if paths not already set, set default ones
+        if (tplGet('themePath').tplGet('partsPath') == '')
+            tplSetTemplate();
 
-		if ($use_baseurl) {
+        // get baseurl if requested
+        $baseurl = ($use_baseurl) ? FCPATH : '';
 
-			// if baseurl is requested, prepend it and assume that a full path to
-			// a resource is specified (ie. don't use parts path)
-			$newfile = FCPATH
-						. _addSlash(tplGet('themePath'))
-						. _addSlash(tplGet('partsPath'));
+        _tplDebug( 'BASE FCPATH:'.$baseurl );
+        _tplDebug( 'PARTS PATH:'.tplGet('partsPath') );
+        _tplDebug( 'PARTS FOLDER:'.tplGet('parts') );
 
-		} else {
+        // build the path to requested parts file
+        $newfile = _makePath($baseurl, tplGet('partsPath'), tplGet('parts'));
 
-			// not using basepath, so just use the parts path
-			$newfile .= _addSlash(tplGet('partsPath'));
-		}
+        // add filename & extension to path
+        $newfile .= _addFileExt($file);
 
-		_tplDebug( 'BASE PATH:'.$newfile );
-		_tplDebug( "PARTS PATH:".tplGet('partsPath') );
-		_tplDebug( "PARTS FOLDER:".tplGet('parts') );
+        _tplDebug( 'LOOKING FOR:'.$newfile );
+        _tplDebug( 'REAL PATH='.realpath($newfile) );
 
-		// add parts folder to path
-		$newfile .= _addSlash(tplGet('parts'));
-
-		// add filename & extension to path
-		$newfile .= _addFileExt($file);
-
-		_tplDebug( "LOOKING FOR:".$newfile );
-		_tplDebug( "REAL PATH=".realpath($newfile) );
-
-		return _tplFindFile($newfile);
-	}
+        return _tplFindFile($newfile);
+    }
 }
 
 
@@ -207,116 +200,117 @@ if (!function_exists('tplPartsPath'))
 
 if (!function_exists('tplStylesheet'))
 {
-	/**
-	 * Return a fully qualified HTML element for the specified stylesheet file (in the current theme)
-	 * @version	29-Oct-2013
-	 *
-	 * @param	string	$file				path/name of stylesheet - without (or with .css) (eg. style or style.css)
-	 * @param	bool	$in_parts_subdir	Are stylesheet files in subfolders named after Parts setting?
-	 * 										True=Yes, e.g. /theme/css/techRS/mystyle.css
-	 * 										False=No, e.g. /theme/css/mystyle.css
-	 * @param	bool	$in_theme			Is stylesheet located in theme folder? Yes=True, No=False
-	 * 										If No, assume full path has been specified
-	 *
-	 * @return	string						HTML stylesheet element
-	 */
-	function tplStylesheet($file, $in_parts_subdir=TRUE, $in_theme=TRUE)
-	{
-		if ( ! $file == '' )
-		{
-			// add .css to filename if not already present
-			$file = _addFileExt($file, 'css');
+    /**
+     * Return a fully qualified HTML element for the specified stylesheet file (in the current theme)
+     * @version 29-Oct-2013
+     *
+     * @param   string  $file               path/name of stylesheet - without (or with .css) (eg. style or style.css)
+     * @param   bool    $in_parts_subdir    Are stylesheet files in subfolders named after Parts setting?
+     *                                      True=Yes, e.g. /theme/css/techRS/mystyle.css
+     *                                      False=No, e.g. /theme/css/mystyle.css
+     * @param   bool    $in_theme           Is stylesheet located in theme folder? Yes=True, No=False
+     *                                      If No, assume full path has been specified
+     *
+     * @return  string                      HTML stylesheet element
+     */
+    function tplStylesheet( $file, $in_parts_subdir=true, $in_theme=true )
+    {
+        if (!empty($file))
+        {
+            // add .css to filename if not already present
+            $file = _addFileExt($file, 'css');
 
-			if ($in_theme)
-			{
-				// get location of file from theme
+            if ($in_theme)
+            {
+                // get location of file from theme
+                $retval = "<link rel='stylesheet' href='" ._tplGetThemeFile('css', $file, $in_parts_subdir). "' type='text/css'>\n";
+            }
+            else
+            {
+                // not using theme so assume literal file path specified
+                $retval = "<link rel='stylesheet' href='{$file}' type='text/css'>\n";
+            }
 
-				$retval = "<link rel='stylesheet' href='" ._tplGetThemeFile("css", $file, $in_parts_subdir). "' type='text/css'>\n";
-			}
-			else
-			{
-				// not using theme so assume literal file path specified
-				$retval = "<link rel='stylesheet' href='" .$file. "' type='text/css'>\n";
-			}
-
-			return $retval;
-		}
-	}
+            return $retval;
+        }
+    }
 }
 
 
 if (!function_exists('tplStylesheets'))
 {
-	/**
-	 * Output all stylesheets stacked up with tplAddStylesheet
-	 * @version	09-Oct-2013
-	 *
-	 * @return	valid HTML stylesheet statement(s)
-	 */
-	function tplStylesheets()
-	{
-		_checkTplVar();
+    /**
+     * Output all stylesheets stacked up with tplAddStylesheet
+     * @version 09-Oct-2013
+     *
+     * @return  valid HTML stylesheet statement(s)
+     */
+    function tplStylesheets()
+    {
+        _checkTplVar();
 
-		$ci=& get_instance();
+        $ci=& get_instance();
 
-		$retval = "";
+        $retval = '';
 
-		if ( array_key_exists('css', $ci->hAtsData[TPLVAR]) ) {
-			$parts = $ci->hAtsData[TPLVAR]['css'];
+        // process css files if specified
+        if ( array_key_exists('css', $ci->hAtsData[TPLVAR]) ) {
 
-			if ( is_array($parts) ) {
-				foreach( $parts as $css_data ) {
+            $parts = $ci->hAtsData[TPLVAR]['css'];
 
-					$css = $css_data['css'];
-					$css_theme = $css_data['intheme'];
-					$css_parts = $css_data['inparts'];
+            if ( is_array($parts) ) {
+                foreach( $parts as $css_data ) {
 
-					_tplDebug( "STYLESHEETS: CSS REQUESTED: ".$css );
+                    $css = $css_data['css'];
+                    $css_theme = $css_data['intheme'];
+                    $css_parts = $css_data['inparts'];
 
-					$retval .= tplStylesheet( $css, $css_parts, $css_theme );
-				}
+                    _tplDebug( 'STYLESHEETS: CSS REQUESTED: '.$css );
 
-			}else{
+                    $retval .= tplStylesheet( $css, $css_parts, $css_theme );
+                }
 
-				// this should never happen as all parts are added as array entities, but just in case!...
+            } else {
 
-				_tplDebug( "STYLESHEETS: ONLY ONE STYLESHEET FOUND: ".$ci->hAtsData[TPLVAR]['css'][0] );
+                // this should never happen as all parts are added as array entities, but just in case!...
 
-				$retval = tplStylesheet( $ci->hAtsData[TPLVAR]['css'][0] );
-			}
-		}
+                _tplDebug( 'STYLESHEETS: ONLY ONE STYLESHEET FOUND: '.$ci->hAtsData[TPLVAR]['css'][0] );
 
-		return $retval;
-	}
+                $retval = tplStylesheet( $ci->hAtsData[TPLVAR]['css'][0] );
+            }
+        }
+
+        return $retval;
+    }
 }
 
 
 if (!function_exists('tplAddStylesheet'))
 {
-	/**
-	 * Add a stylesheet to the stack - for output with tplStylesheets()
-	 *
-	 * @version	09-Oct-2013
-	 *
-	 * @param	string	$css	name of stylesheet to load - excluding (or including .css file extension)
-	 * 							the path is automatically located in /theme/[theme name]/css/[css name]/
-	 * @param   string  $in_parts_subdir Flag indicating if current Parts name should be added to path of this css file
-	 * @param   string  $in_theme 		 Flag indicating if this css file exists within the current theme
-	 *
-	 * @return	void
-	 */
-	function tplAddStylesheet($css, $in_parts_subdir=TRUE, $in_theme=TRUE)
-	{
-		_checkTplVar();
+    /**
+     * Add a stylesheet to the stack - for output with tplStylesheets()
+     *
+     * @version 25-Feb-2014
+     *
+     * @param   string  $css    name of stylesheet to load - excluding (or including .css file extension)
+     *                          the path is automatically located in /theme/[theme name]/css/[css name]/
+     * @param   string  $in_parts_subdir Flag indicating if current Parts name should be added to path of this css file
+     * @param   string  $in_theme        Flag indicating if this css file exists within the current theme
+     *
+     * @return  void
+     */
+    function tplAddStylesheet( $css, $in_parts_subdir=true, $in_theme=true )
+    {
+        _checkTplVar();
 
-		$ci=& get_instance();
+        $ci=& get_instance();
 
-		// add parts path if required
-		if ($in_parts_subdir)
-			$css = _addSlash(tplGet('parts')) . $css;
+        // add parts path if required
+        if ($in_parts_subdir)
+            $css = _makePath(tplGet('parts')) . $css;
 
-		$ci->hAtsData[TPLVAR]['css'][] = array('css'=>$css, 'intheme'=>$in_theme, 'inparts'=>$in_parts_subdir);
-	}
+        $ci->hAtsData[TPLVAR]['css'][] = array('css'=>$css, 'intheme'=>$in_theme, 'inparts'=>$in_parts_subdir);
+    }
 }
 
 
@@ -328,198 +322,198 @@ if (!function_exists('tplAddStylesheet'))
 
 if (!function_exists('tplJavascript'))
 {
-	/**
-	 * Return a fully qualified HTML element for a javascript file in the current theme
-	 * @version	29-Oct-2013
-	 *
-	 * @param	string	file				path/name of javascript (eg. jQuery.js or just jQuery)
-	 * @param	bool	$in_theme			Is javascript located in theme folder? Yes=True, No=False
-	 * 										If No, assume full path has been specified
-	 * @param	bool	$in_parts_subdir	Are javascript files in subfolders named after Parts setting?
-	 * 										True=Yes, e.g. /theme/js/techRS/validate.js
-	 * 										False=No, e.g. /theme/js/validate.js
-	 * @return	string						HTML javascript element
-	 */
-	function tplJavascript($file, $in_parts_subdir=TRUE, $in_theme=TRUE)
-	{
-		if ( $file !== '' )
-		{
-			// add .js to filename if not already present
-			$file = _addFileExt($file, 'js');
+    /**
+     * Return a fully qualified HTML element for a javascript file in the current theme
+     * @version 25-Feb-2014
+     *
+     * @param   string  file                path/name of javascript (eg. jQuery.js or just jQuery)
+     * @param   bool    $in_theme           Is javascript located in theme folder? Yes=True, No=False
+     *                                      If No, assume full path has been specified
+     * @param   bool    $in_parts_subdir    Are javascript files in subfolders named after Parts setting?
+     *                                      True=Yes, e.g. /theme/js/techRS/validate.js
+     *                                      False=No, e.g. /theme/js/validate.js
+     * @return  string                      HTML javascript element
+     */
+    function tplJavascript( $file, $in_parts_subdir=true, $in_theme=true )
+    {
+        if (!empty($file))
+        {
+            // add .js to filename if not already present
+            $file = _addFileExt($file, 'js');
 
-			_tplDebug('JS FILENAME:', $file);
+            _tplDebug('JS FILENAME:', $file);
 
-			if ($in_theme)
-			{
-				_tplDebug('JS FROM THEME!');
+            if ($in_theme)
+            {
+                _tplDebug('JS FROM THEME!');
 
-				// add parts path if required
-				if ($in_parts_subdir)
-					$file = _addSlash(tplGet('parts')) . $file;
+                // add parts path if required
+                if ($in_parts_subdir)
+                    $file = _makePath(tplGet('parts')) . $file;
 
-				// get location of file from theme
-				$retval = "<script type='text/javascript' src='" ._tplGetThemeFile("js", $file, FALSE). "'></script>";
-			}
-			else
-			{
-				_tplDebug('JS LITERAL PATH SUPPLIED!');
+                // get location of file from theme
+                $retval = "<script type='text/javascript' src='" ._tplGetThemeFile('js', $file, FALSE). "'></script>";
+            }
+            else
+            {
+                _tplDebug('JS LITERAL PATH SUPPLIED!');
 
-				// not using theme so assume literal file path specified
-				$retval = "<script type='text/javascript' src='" .$file. "'></script>";
-			}
+                // not using theme so assume literal file path specified
+                $retval = "<script type='text/javascript' src='{$file}'></script>";
+            }
 
-			return $retval;
-		}
-	}
+            return $retval;
+        }
+    }
 }
 
 
 if (!function_exists('tplJavascriptParsed'))
 {
-	/**
-	 * Load a theme Javascript file into memory, parse it for PHP, then return it as string.
-	 * Returned file content will automatically be wrapped in <script> tags.
-	 * @author	hArpanet.com
-	 * @version	16-Jan-2013
-	 *
-	 * @param	string	file				path/name of javascript (eg. jQuery.js or just jQuery)
-	 * @param	bool	$in_theme			Is javascript located in theme folder?
-	 * 										If No, assume full path has been specified
-	 * @param	bool	$in_parts_subdir	Are javascript files in subfolders named after Parts setting?
-	 * 										True=Yes, e.g. /theme/js/techRS/validate.js
-	 * 										False=No, e.g. /theme/js/validate.js
-	 * @return	string						HTML javascript <script> block
-	 */
-	function tplJavascriptParsed($file, $in_parts_subdir=TRUE, $in_theme=TRUE)
-	{
-		// no point doing anything if filename not specified
-		if ( ! empty($file))
-		{
-			// add .js to filename if not already present
-			$file = _addFileExt($file, 'js');
+    /**
+     * Load a theme Javascript file into memory, parse it for PHP, then return it as string.
+     * Returned file content will automatically be wrapped in <script> tags.
+     * @author  hArpanet.com
+     * @version 16-Jan-2013
+     *
+     * @param   string  file                path/name of javascript (eg. jQuery.js or just jQuery)
+     * @param   bool    $in_theme           Is javascript located in theme folder?
+     *                                      If No, assume full path has been specified
+     * @param   bool    $in_parts_subdir    Are javascript files in subfolders named after Parts setting?
+     *                                      True=Yes, e.g. /theme/js/techRS/validate.js
+     *                                      False=No, e.g. /theme/js/validate.js
+     * @return  string                      HTML javascript <script> block
+     */
+    function tplJavascriptParsed( $file, $in_parts_subdir=true, $in_theme=true )
+    {
+        // no point doing anything if filename not specified
+        if ( ! empty($file))
+        {
+            // add .js to filename if not already present
+            $file = _addFileExt($file, 'js');
 
-			_tplDebug( "JAVASCRIPT PARSED: ".$file );
+            _tplDebug( 'JAVASCRIPT PARSED: '.$file );
 
-			if ($in_theme)
-			{
-				// get location of file from theme
-				$file = _tplGetThemeFile("js", $file, $in_parts_subdir);
-				$file = realpath($_SERVER['DOCUMENT_ROOT']) .$file;
-			}
+            if ($in_theme)
+            {
+                // get location of file from theme
+                $file = _tplGetThemeFile('js', $file, $in_parts_subdir);
+                $file = realpath($_SERVER['DOCUMENT_ROOT']) .$file;
+            }
 
-			_tplDebug( "JAVASCRIPT PARSED REAL PATH: ".$file );
+            _tplDebug( 'JAVASCRIPT PARSED REAL PATH: '.$file );
 
-			// load the file contents
-			$jsfile = file_get_contents($file);
+            // load the file contents
+            $jsfile = file_get_contents($file);
 
-			// wrap in script tags
-			$retval = "<script type='text/javascript'>{$jsfile}</script>";
+            // wrap in script tags
+            $retval = "<script type='text/javascript'>{$jsfile}</script>";
 
-			// run eval to parse any PHP instructions
-			$retval = eval('?>'.$retval);
+            // run eval to parse any PHP instructions
+            $retval = eval('?>'.$retval);
 
-			return $retval;
-		}
-	}
+            return $retval;
+        }
+    }
 }
 
 
 if (!function_exists('tplJavascripts'))
 {
-	/**
-	 * Output all javascripts stacked up with tplAddJavascript
-	 * @version	09-Oct-2013
-	 *
-	 * @return	valid HTML javascript statement(s)
-	 */
-	function tplJavascripts()
-	{
-		_checkTplVar();
+    /**
+     * Output all javascripts stacked up with tplAddJavascript
+     * @version 09-Oct-2013
+     *
+     * @return  valid HTML javascript statement(s)
+     */
+    function tplJavascripts()
+    {
+        _checkTplVar();
 
-		$ci=& get_instance();
+        $ci=& get_instance();
 
-		$retval = "";
+        $retval = '';
 
-		if ( array_key_exists('js', $ci->hAtsData[TPLVAR]) ) {
-			$parts = $ci->hAtsData[TPLVAR]['js'];
+        if ( array_key_exists('js', $ci->hAtsData[TPLVAR]) ) {
+            $parts = $ci->hAtsData[TPLVAR]['js'];
 
-			if ( is_array($parts) ) {
-				foreach( $parts as $js_data ) {
+            if ( is_array($parts) ) {
+                foreach( $parts as $js_data ) {
 
-					$js = $js_data['js'];
-					$js_theme = $js_data['intheme'];
-					$js_parts = $js_data['inparts'];
+                    $js = $js_data['js'];
+                    $js_theme = $js_data['intheme'];
+                    $js_parts = $js_data['inparts'];
 
-					// check if js name contains 'parse' flag '#'
-					if ( substr($js, 0, 1) == '#' )
-					{
-						_tplDebug( "JAVASCRIPTS: PARSED JS REQUIRED: {$js}" );
+                    // check if js name contains 'parse' flag '#'
+                    if ( substr($js, 0, 1) == '#' )
+                    {
+                        _tplDebug( "JAVASCRIPTS: PARSED JS REQUIRED: {$js}" );
 
-						// this javascript needs to be parsed for PHP tags
-						$retval .= tplJavascriptParsed( substr($js, 1), $js_location, $js_parts );
-					}
-					else
-					{
-						_tplDebug( "JAVASCRIPTS: NORMAL JS REQUIRED: {$js}" );
+                        // this javascript needs to be parsed for PHP tags
+                        $retval .= tplJavascriptParsed( substr($js, 1), $js_location, $js_parts );
+                    }
+                    else
+                    {
+                        _tplDebug( "JAVASCRIPTS: NORMAL JS REQUIRED: {$js}" );
 
-						$retval .= tplJavascript( $js, $js_parts, $js_theme );
-					}
+                        $retval .= tplJavascript( $js, $js_parts, $js_theme );
+                    }
 
-					_tplDebug("JAVASCRIPTS: JS RETURNED: {$retval}");
-				}
+                    _tplDebug("JAVASCRIPTS: JS RETURNED: {$retval}");
+                }
 
-			}else{
+            }else{
 
-				// this should never happen as all parts are added as array entities, but just in case!...
+                // this should never happen as all parts are added as array entities, but just in case!...
 
-				_tplDebug( "JAVASCRIPTS: ONLY ONE JS FILE FOUND: ".$ci->hAtsData[TPLVAR]['js'][0] );
+                _tplDebug( 'JAVASCRIPTS: ONLY ONE JS FILE FOUND: '.$ci->hAtsData[TPLVAR]['js'][0] );
 
-				$retval = tplJavascript( $ci->hAtsData[TPLVAR]['js'][0] );
-			}
-		}
+                $retval = tplJavascript( $ci->hAtsData[TPLVAR]['js'][0] );
+            }
+        }
 
-		return $retval;
-	}
+        return $retval;
+    }
 }
 
 
 if (!function_exists('tplAddJavascript'))
 {
-	/**
-	 * Add a javascript file to the stack - for output with tplJavascripts()
-	 * @version	11-Sept-2012
-	 *
-	 * NOTE: To add javascript from non theme locations (e.g. /assets/js)
-	 * 		 ensure $in_theme and $in_parts_subdir are passed as FALSE.
-	 *
-	 * NOTE: precede the javascript filename with hash symbol to indicate if it should be 'parsed'
-	 * 		 for PHP code during later processing with tplJavascripts()
-	 * 		 eg. '#add_user' would cause the 'add_user.js' file to be passed to tplJavascriptParsed() before output
-	 * 			 'add_user'  would cause the 'add_user.js' file to be output as-is
-	 *
-	 * @param	string	$js		name of javascript to load - excluding (or including) .js file extension
-	 * 							the path is automatically located in /theme/[theme name]/js/[js name]/
-	 * 							if the following two parameters are left TRUE
-	 * @param   string  $in_parts_subdir Flag indicating if current Parts name should be added to path of this js file
-	 *                                   Default to FALSE to aid disambiguation (ie. specify the part name in the filepath instead)
-	 * @param   string  $in_theme 		 Flag indicating if current Parts name is within the current theme folder
-	 *
-	 * @return	void
-	 */
-	function tplAddJavascript($js, $in_parts_subdir=TRUE, $in_theme=TRUE)
-	{
-		_checkTplVar();
+    /**
+     * Add a javascript file to the stack - for output with tplJavascripts()
+     * @version 11-Sept-2012
+     *
+     * NOTE: To add javascript from non theme locations (e.g. /assets/js)
+     *       ensure $in_theme and $in_parts_subdir are passed as FALSE.
+     *
+     * NOTE: precede the javascript filename with hash symbol to indicate if it should be 'parsed'
+     *       for PHP code during later processing with tplJavascripts()
+     *       eg. '#add_user' would cause the 'add_user.js' file to be passed to tplJavascriptParsed() before output
+     *           'add_user'  would cause the 'add_user.js' file to be output as-is
+     *
+     * @param   string  $js     name of javascript to load - excluding (or including) .js file extension
+     *                          the path is automatically located in /theme/[theme name]/js/[js name]/
+     *                          if the following two parameters are left TRUE
+     * @param   string  $in_parts_subdir Flag indicating if current Parts name should be added to path of this js file
+     *                                   Default to FALSE to aid disambiguation (ie. specify the part name in the filepath instead)
+     * @param   string  $in_theme        Flag indicating if current Parts name is within the current theme folder
+     *
+     * @return  void
+     */
+    function tplAddJavascript( $js, $in_parts_subdir=true, $in_theme=true )
+    {
+        _checkTplVar();
 
-		$ci=& get_instance();
+        $ci=& get_instance();
 
-		// @TODO remove this block (now handled in tplJavascript)
-		//
-		// add parts path if required
-		// if ($in_parts_subdir)
-		// 	$js = _addSlash(tplGet('parts')) . $js;
+        // @TODO remove this block (now handled in tplJavascript)
+        //
+        // add parts path if required
+        // if ($in_parts_subdir)
+        //  $js = _addSlash(tplGet('parts')) . $js;
 
-		$ci->hAtsData[TPLVAR]['js'][] = array('js'=>$js, 'inparts'=>$in_parts_subdir, 'intheme'=>$in_theme);
-	}
+        $ci->hAtsData[TPLVAR]['js'][] = array('js'=>$js, 'inparts'=>$in_parts_subdir, 'intheme'=>$in_theme);
+    }
 }
 
 
@@ -532,37 +526,37 @@ if (!function_exists('tplAddJavascript'))
 
 if (!function_exists('tplImage'))
 {
-	/**
-	 * Return a fully qualified path to a current theme image file
-	 * @version	14-Jun-2012
-	 *
-	 * @param	string	file	path/name of image (eg. companyLogo.png) - NOTE: file extension required
-	 * @param	bool	$in_theme			Is image located in theme folder? Yes=True, No=False
-	 * 										If No, assume full path has been specified
-	 * @param	bool	$in_parts_subdir	Are image files in subfolders named after Parts setting?
-	 * 										True=Yes, e.g. /theme/img/techRS/machine.png
-	 * 										False=No, e.g. /theme/img/machine.png
-	 * @return	string			filepath
-	 */
-	function tplImage($file, $in_theme=TRUE, $in_parts_subdir=FALSE)
-	{
-		// TODO:	Possibly need a 'tplImages()' function to return multiple HTML include lines for multiple image files
-		//			as per tplGetParts()
+    /**
+     * Return a fully qualified path to a current theme image file
+     * @version 14-Jun-2012
+     *
+     * @param   string  file    path/name of image (eg. companyLogo.png) - NOTE: file extension required
+     * @param   bool    $in_theme           Is image located in theme folder? Yes=True, No=False
+     *                                      If No, assume full path has been specified
+     * @param   bool    $in_parts_subdir    Are image files in subfolders named after Parts setting?
+     *                                      True=Yes, e.g. /theme/img/techRS/machine.png
+     *                                      False=No, e.g. /theme/img/machine.png
+     * @return  string          filepath
+     */
+    function tplImage( $file, $in_theme=true, $in_parts_subdir=true )
+    {
+        // TODO:    Possibly need a 'tplImages()' function to return multiple HTML include lines for multiple image files
+        //          as per tplGetParts()
 
-		if ($in_theme)
-		{
-			// get location of file from theme
+        if ($in_theme)
+        {
+            // get location of file from theme
 
-			$retval = _tplGetThemeFile("img", $file, $in_parts_subdir);
-		}
-		else
-		{
-			// not using theme so assume literal file path specified
-			$retval = $file;
-		}
+            $retval = _tplGetThemeFile('img', $file, $in_parts_subdir);
+        }
+        else
+        {
+            // not using theme so assume literal file path specified
+            $retval = $file;
+        }
 
-		return $retval;
-	}
+        return $retval;
+    }
 }
 
 
@@ -574,173 +568,173 @@ if (!function_exists('tplImage'))
 
 if (!function_exists('tplSet'))
 {
-	/**
-	 * SET VALUE OF TEMPLATE VARIABLE - overwrite existing value
-	 * @version	14-Sept-2012
-	 *
-	 * @param	string	$var	template variable name
-	 * 							NOTE: As of @version 1.5.7...
-	 * 								  $var can now be passed as an assoc array, but if this
-	 * 								  is used then it can only set plain variable values
-	 * 								  and not an element of a variable containing an array
-	 *	 							  (eg. array('var'=>'val', 'var'=>'val', etc.)
-	 * @param	mixed	$val	value to set
-	 * @param	string	$elem	if $var is an array, $elem allows us to set a value
-	 * 							within that array by specifying its key.
-	 * 							$var MUST already exist and be an array.
-	 * @return			$this
-	 */
-	function tplSet($var='clipboard', $val='', $elem='' )
-	{
-		_checkTplVar();
+    /**
+     * SET VALUE OF TEMPLATE VARIABLE - overwrite existing value
+     * @version 14-Sept-2012
+     *
+     * @param   string  $var    template variable name
+     *                          NOTE: As of @version 1.5.7...
+     *                                $var can now be passed as an assoc array, but if this
+     *                                is used then it can only set plain variable values
+     *                                and not an element of a variable containing an array
+     *                                (eg. array('var'=>'val', 'var'=>'val', etc.)
+     * @param   mixed   $val    value to set
+     * @param   string  $elem   if $var is an array, $elem allows us to set a value
+     *                          within that array by specifying its key.
+     *                          $var MUST already exist and be an array.
+     * @return          $this
+     */
+    function tplSet( $var='clipboard', $val='', $elem='' )
+    {
+        _checkTplVar();
 
-		$ci=& get_instance();
+        $ci=& get_instance();
 
-		// hAtsData should always be an array, but check anyway to prevent error
-		if ( is_array($ci->hAtsData) )
-		{
-			// is $var an array?
-			if (is_array($var))
-			{
-				// array sent, process elements
-				$var_array = $var;
-				foreach($var_array as $var => $val)
-				{
-					// NOTE: Not able to set array elements when values passed as an array!
-					// So here, we are just setting the $var with the $val...
-					$ci->hAtsData[TPLVAR][$var] = $val;
-				}
-			}
-			else
-			{
-				// plain parameters sent (not an array)
+        // hAtsData should always be an array, but check anyway to prevent error
+        if ( is_array($ci->hAtsData) )
+        {
+            // is $var an array?
+            if (is_array($var))
+            {
+                // array sent, process elements
+                $var_array = $var;
+                foreach($var_array as $var => $val)
+                {
+                    // NOTE: Not able to set array elements when values passed as an array!
+                    // So here, we are just setting the $var with the $val...
+                    $ci->hAtsData[TPLVAR][$var] = $val;
+                }
+            }
+            else
+            {
+                // plain parameters sent (not an array)
 
-				// are we setting an array element?
-				if ( empty($elem) )
-				{
-					// no, just set the $var
-					$ci->hAtsData[TPLVAR][$var] = $val;
-				}
-				else
-				{
-					// yes, setting an array $elem, check that $var exists and that it is an array - if not create it
-					if ( array_key_exists($var,$ci->hAtsData[TPLVAR]) === FALSE )
-					{
-						$ci->hAtsData[TPLVAR][$var] = array();
-					}
+                // are we setting an array element?
+                if ( empty($elem) )
+                {
+                    // no, just set the $var
+                    $ci->hAtsData[TPLVAR][$var] = $val;
+                }
+                else
+                {
+                    // yes, setting an array $elem, check that $var exists and that it is an array - if not create it
+                    if ( array_key_exists($var,$ci->hAtsData[TPLVAR]) === FALSE )
+                    {
+                        $ci->hAtsData[TPLVAR][$var] = array();
+                    }
 
-					// now set the value
-					$ci->hAtsData[TPLVAR][$var][$elem] = $val;
-				}
-			}
-		}
+                    // now set the value
+                    $ci->hAtsData[TPLVAR][$var][$elem] = $val;
+                }
+            }
+        }
 
-		//		return $this;
-	}
+        //      return $this;
+    }
 }
 
 if (!function_exists('tplAdd'))
 {
-	/**
-	 * Add another value to named template variable (value will be string appended to existing value)
-	 * @version	14-Jun-2012
-	 *
-	 * @param	string	$var	template variable name
-	 * @param	mixed	$val	value to set
-	 * @return			$this
-	 */
-	function tplAdd($var = "clipboard", $val = "")
-	{
-		_checkTplVar();
+    /**
+     * Add another value to named template variable (value will be string appended to existing value)
+     * @version 14-Jun-2012
+     *
+     * @param   string  $var    template variable name
+     * @param   mixed   $val    value to set
+     * @return          $this
+     */
+    function tplAdd( $var = 'clipboard', $val = '' )
+    {
+        _checkTplVar();
 
-		$ci=& get_instance();
+        $ci=& get_instance();
 
-		if ( array_key_exists($var, $ci->hAtsData[TPLVAR]) ) {
-			$ci->hAtsData[TPLVAR][$var] .= $val;
-		}else{
-			tplSet($var, $val);
-		}
+        if ( array_key_exists($var, $ci->hAtsData[TPLVAR]) ) {
+            $ci->hAtsData[TPLVAR][$var] .= $val;
+        }else{
+            tplSet($var, $val);
+        }
 
-		//		return $this;
-	}
+        //      return $this;
+    }
 }
 
 if (!function_exists('tplGet'))
 {
-	/**
-	 * GET TEMPLATE VALUE
-	 * @version	14-Jun-2012
-	 *
-	 * @param	string		$var	name of variable to retrieve
-	 * @param	string		$elem	if $var contains an array, this optional parameter can
-	 * 								specify an element within the $var array to return
-	 * 								This saves having to return the array $var, then pulling
-	 * 								out the element later.
-	 * @return	string				Value of $var or blank string if not found
-	 */
-	function tplGet($var = "clipboard", $elem='')
-	{
-		_checkTplVar();
+    /**
+     * GET TEMPLATE VALUE
+     * @version 14-Jun-2012
+     *
+     * @param   string      $var    name of variable to retrieve
+     * @param   string      $elem   if $var contains an array, this optional parameter can
+     *                              specify an element within the $var array to return
+     *                              This saves having to return the array $var, then pulling
+     *                              out the element later.
+     * @return  string              Value of $var or blank string if not found
+     */
+    function tplGet( $var = 'clipboard', $elem='' )
+    {
+        _checkTplVar();
 
-		$CI =& get_instance();
+        $CI =& get_instance();
 
-		// hAtsData should always be an array, but check anyway to prevent error
-		if ( is_array($CI->hAtsData) )
-		{
-			// check if requested var exists
-			if ( array_key_exists($var, $CI->hAtsData[TPLVAR]) ) {
+        // hAtsData should always be an array, but check anyway to prevent error
+        if ( is_array($CI->hAtsData) )
+        {
+            // check if requested var exists
+            if ( array_key_exists($var, $CI->hAtsData[TPLVAR]) ) {
 
-				// if we are requesting an array element, check that the var is an array
-				if ( $elem != '' AND is_array($CI->hAtsData[TPLVAR][$var]) )
-				{
-					// check if array element $elem exists
-					if ( array_key_exists($elem, $CI->hAtsData[TPLVAR][$var]) )
-					{
-						return $CI->hAtsData[TPLVAR][$var][$elem];
-					}
+                // if we are requesting an array element, check that the var is an array
+                if ( $elem != '' AND is_array($CI->hAtsData[TPLVAR][$var]) )
+                {
+                    // check if array element $elem exists
+                    if ( array_key_exists($elem, $CI->hAtsData[TPLVAR][$var]) )
+                    {
+                        return $CI->hAtsData[TPLVAR][$var][$elem];
+                    }
 
-				}else{
-					// not requesting array element $elem, so just return $var
-					return $CI->hAtsData[TPLVAR][$var];
-				}
-			}
-			elseif ($var == "__ALL__")
-			{
-				// return entire array - only of use for debugging
-				return $CI->hAtsData;
-			}
-		}
+                }else{
+                    // not requesting array element $elem, so just return $var
+                    return $CI->hAtsData[TPLVAR][$var];
+                }
+            }
+            elseif ($var == '__ALL__')
+            {
+                // return entire array - only of use for debugging
+                return $CI->hAtsData;
+            }
+        }
 
-		// var not found, return nothing
-		return "";
-	}
+        // var not found, return nothing
+        return '';
+    }
 }
 
 if (!function_exists('tplGetOr'))
 {
-	/**
-	 * GET TEMPLATE VALUE OR RETURN SPECIFIED VALUE IF BLANK
-	 * NOTE: YOU CANNOT GET AN ARRAY VALUE USING tplGetOr
-	 * @version	18-Dec-2012
-	 *
-	 * @param	string		$var	name of variable to retrieve
-	 * @param	string		$elem	if $var contains an array, this optional parameter can
-	 * 								specify an element within the $var array to return
-	 * 								This saves having to return the array $var, then pulling
-	 * 								out the element later.
-	 * @return	string				Value of $var or blank string if not found
-	 */
-	function tplGetOr($var="clipboard", $or='')
-	{
-		$var = tplGet($var);
+    /**
+     * GET TEMPLATE VALUE OR RETURN SPECIFIED VALUE IF BLANK
+     * NOTE: YOU CANNOT GET AN ARRAY VALUE USING tplGetOr
+     * @version 18-Dec-2012
+     *
+     * @param   string      $var    name of variable to retrieve
+     * @param   string      $elem   if $var contains an array, this optional parameter can
+     *                              specify an element within the $var array to return
+     *                              This saves having to return the array $var, then pulling
+     *                              out the element later.
+     * @return  string              Value of $var or blank string if not found
+     */
+    function tplGetOr( $var='clipboard', $or='' )
+    {
+        $var = tplGet($var);
 
-		if ($var == '')
-		{
-			$var = $or;
-		}
+        if ($var == '')
+        {
+            $var = $or;
+        }
 
-		return $var;
-	}
+        return $var;
+    }
 }
 
 /*
@@ -750,186 +744,186 @@ if (!function_exists('tplGetOr'))
 
 if (!function_exists('tplAddPart'))
 {
-	/**
-	 * Add a template Part to the stack - for output with getParts()
-	 * A template 'part' is a small block of pHTML that can be included within
-	 * another pHTML part file.
-	 * @version	07-Oct-2013
-	 *
-	 * @param string $part 	Name of View part to load
-	 * 							This should be a filename without .phtml extension.
-	 * 							The path is by default located in /theme/parts/[parts name]/
-	 * @param array  $data 	Use this to assign specific data to a part that is being loaded multiple times
-	 *                      $data is an Array of variable name/value pairs to make available to this Part.
-	 *                      	eg. $data=array('name'=>'hArpanet', 'url'=>'harpanet.com');
-	 *                      	When parts are generated (in tplGetParts()) any $data vars are created using tplSet()
-	 *                      	eg. tplSet('name', 'hArpanet');
-	 */
-	function tplAddPart($part, $data=null)
-	{
-		//@todo	Add a hierarchy 'position' to be specified when adding a part to dicate the order that parts will be shown in tplGetParts()
+    /**
+     * Add a template Part to the stack - for output with getParts()
+     * A template 'part' is a small block of pHTML that can be included within
+     * another pHTML part file.
+     * @version 07-Oct-2013
+     *
+     * @param string $part  Name of View part to load
+     *                          This should be a filename without .phtml extension.
+     *                          The path is by default located in /theme/parts/[parts name]/
+     * @param array  $data  Use this to assign specific data to a part that is being loaded multiple times
+     *                      $data is an Array of variable name/value pairs to make available to this Part.
+     *                          eg. $data=array('name'=>'hArpanet', 'url'=>'harpanet.com');
+     *                          When parts are generated (in tplGetParts()) any $data vars are created using tplSet()
+     *                          eg. tplSet('name', 'hArpanet');
+     */
+    function tplAddPart( $part, $data=null )
+    {
+        //@todo Add a hierarchy 'position' to be specified when adding a part to dicate the order that parts will be shown in tplGetParts()
 
-		_checkTplVar();
+        _checkTplVar();
 
-		$ci=& get_instance();
+        $ci=& get_instance();
 
-		if (is_null($data)) {
-			// just a part name
-			$ci->hAtsData[TPLVAR]['viewPart'][] = $part;
+        if (is_null($data)) {
+            // just a part name
+            $ci->hAtsData[TPLVAR]['viewPart'][] = $part;
 
-		} else {
-			// if data specified...
-			$ci->hAtsData[TPLVAR]['viewPart'][] = array($part, $data);
-		}
-	}
+        } else {
+            // if data specified...
+            $ci->hAtsData[TPLVAR]['viewPart'][] = array($part, $data);
+        }
+    }
 }
 
 if (!function_exists('tplGetPart'))
 {
-	/**
-	 * Get existing template Part contents (uses PHP 'require')
-	 * A template 'part' is a small block of pHTML that can be included within
-	 * another pHTML part file.
-	 * @version	07-Oct-2013
-	 *
-	 * @param	string	$part	name of part to retrieve (i.e. filename without '.phtml' extension)
-	 *
-	 * @example	Usage in a View file: <?php echo tplGetPart('nameOfPart'); ?>
-	 */
-	function tplGetPart($part)
-	{
-		// add phtml extension if not specified
-		$part = _addFileExt($part);
+    /**
+     * Get existing template Part contents (uses PHP 'require')
+     * A template 'part' is a small block of pHTML that can be included within
+     * another pHTML part file.
+     * @version 07-Oct-2013
+     *
+     * @param   string  $part   name of part to retrieve (i.e. filename without '.phtml' extension)
+     *
+     * @example Usage in a View file: <?php echo tplGetPart('nameOfPart'); ?>
+     */
+    function tplGetPart( $part )
+    {
+        // add phtml extension if not specified
+        $part = _addFileExt($part);
 
-		_tplDebug( "GETTING PART:".$part );
+        _tplDebug( 'GETTING PART:'.$part );
 
-		require tplPartsPath($part);
-	}
+        require tplPartsPath($part);
+    }
 }
 
 if (!function_exists('tplGetPartAsHtml'))
 {
-	/**
-	 * Get contents of a template Part as a string value
-	 * A template 'part' is a small block of pHTML that can be included within
-	 * another pHTML part file.
-	 * @version	07-Oct-2013
-	 *
-	 * @param	string	$part	name of part to retrieve (i.e. filename without 'phtml' extension)
-	 * @return			$this
-	 */
-	function tplGetPartAsHtml($part)
-	{
-		// add .phtml extension if not specified
-		$part = _addFileExt($part);
+    /**
+     * Get contents of a template Part as a string value
+     * A template 'part' is a small block of pHTML that can be included within
+     * another pHTML part file.
+     * @version 07-Oct-2013
+     *
+     * @param   string  $part   name of part to retrieve (i.e. filename without 'phtml' extension)
+     * @return          $this
+     */
+    function tplGetPartAsHtml( $part )
+    {
+        // add .phtml extension if not specified
+        $part = _addFileExt($part);
 
-		_tplDebug( "GETTING PART AS HTML:".$part );
+        _tplDebug( 'GETTING PART AS HTML:'.$part );
 
-		return file_get_contents( tplPartsPath($part) );
-	}
+        return file_get_contents( tplPartsPath($part) );
+    }
 }
 
 
 if (!function_exists('tplGetParts'))
 {
-	/**
-	 * Get all view parts stacked for output
-	 * @version 07-Oct-2013
-	 *
-	 * @return	$this - No output from this function as parts are 'included' in the tplGetPart function
-	 */
-	function tplGetParts()
-	{
-		_checkTplVar();
+    /**
+     * Get all view parts stacked for output
+     * @version 07-Oct-2013
+     *
+     * @return  $this - No output from this function as parts are 'included' in the tplGetPart function
+     */
+    function tplGetParts()
+    {
+        _checkTplVar();
 
-		$ci   =& get_instance();
-		$data = '';
+        $ci   =& get_instance();
+        $data = '';
 
-		if ( array_key_exists('viewPart', $ci->hAtsData[TPLVAR]) ) {
-			$parts = $ci->hAtsData[TPLVAR]['viewPart'];
+        if ( array_key_exists('viewPart', $ci->hAtsData[TPLVAR]) ) {
+            $parts = $ci->hAtsData[TPLVAR]['viewPart'];
 
-			if ( is_array($parts) ) {
-				foreach( $parts as $part ) {
+            if ( is_array($parts) ) {
+                foreach( $parts as $part ) {
 
-					if (is_array($part)) {
-						// variable data has been specified
-						$data = $part[1];
-						$part = $part[0];
-					}
+                    if (is_array($part)) {
+                        // variable data has been specified
+                        $data = $part[1];
+                        $part = $part[0];
 
-					_tplDebug( "GETPARTS: PART FOUND: ".$part );
+                        // create part-specific variables
+                        foreach($data as $var=>$value) {
+                            tplSet($var, $value);
+                        }
+                    }
 
-					// create part-specific variables
-					foreach($data as $var=>$value) {
-						tplSet($var, $value);
-					}
+                    _tplDebug( 'GETPARTS: PART FOUND: '.$part );
 
-					tplGetPart( $part );
-				}
+                    tplGetPart( $part );
+                }
 
-			}else{
+            }else{
 
-				// this should never happen as all parts are added as array entities, but just in case!...
+                // this should never happen as all parts are added as array entities, but just in case!...
 
-				_tplDebug( "GETPARTS: ONLY ONE PART FOUND: ".$ci->hAtsData[TPLVAR]['viewPart'][0] );
+                _tplDebug( 'GETPARTS: ONLY ONE PART FOUND: '.$ci->hAtsData[TPLVAR]['viewPart'][0] );
 
-				tplGetPart( $ci->hAtsData[TPLVAR]['viewPart'][0] );
-			}
-		}
-	}
+                tplGetPart( $ci->hAtsData[TPLVAR]['viewPart'][0] );
+            }
+        }
+    }
 }
 
 
 if (!function_exists('tplResponse_message'))
 {
-	/**
-	 * Display a response message wrapped in a div
-	 * @author 	hArpanet.com
-	 * @version 02-May-2013 - added jQuery fadeout
-	 * 			20-Jun-2012 - created
-	 *
-	 * @param	string	$name	array element name set using tplSet()
-	 * @param	string	$css	if $name specified, $css can contains an optional name for the css div class; defaults to $name if not specified
-	 * 							css class name always begins 'response_' with $css appended to it
-	 */
-	function tplResponse_message( $name='', $css='' )
-	{
-		_checkTplVar();
+    /**
+     * Display a response message wrapped in a div
+     * @author  hArpanet.com
+     * @version 02-May-2013 - added jQuery fadeout
+     *          20-Jun-2012 - created
+     *
+     * @param   string  $name   array element name set using tplSet()
+     * @param   string  $css    if $name specified, $css can contains an optional name for the css div class; defaults to $name if not specified
+     *                          css class name always begins 'response_' with $css appended to it
+     */
+    function tplResponse_message( $name='', $css='' )
+    {
+        _checkTplVar();
 
-		$ci=& get_instance();
+        $ci=& get_instance();
 
-		if ( $name != '' && array_key_exists($name, $ci->hAtsData[TPLVAR]) )
-		{
-			$css 		= ( $css == '' ) ? $name : $css;
-			$response 	= $ci->hAtsData[TPLVAR][$name];
+        if ( $name != '' && array_key_exists($name, $ci->hAtsData[TPLVAR]) )
+        {
+            $css        = ( $css == '' ) ? $name : $css;
+            $response   = $ci->hAtsData[TPLVAR][$name];
 
-			echo "<div class='response_$css'>$response</div>";
-		}
+            echo "<div class='response_{$css}'>{$response}</div>";
+        }
 
 
-		if ( array_key_exists('success', $ci->hAtsData[TPLVAR]) )
-		{
-			$success = $ci->hAtsData[TPLVAR]['success'];
+        if ( array_key_exists('success', $ci->hAtsData[TPLVAR]) )
+        {
+            $success = $ci->hAtsData[TPLVAR]['success'];
 
-			echo "<div style='cursor:pointer;' class='response_success' onclick=\"javascript:this.style.display='none';\">$success</div>";
-		}
+            echo "<div style='cursor:pointer;' class='response_success' onclick=\"javascript:this.style.display='none';\">{$success}</div>";
+        }
 
-		if ( array_key_exists('fail', $ci->hAtsData[TPLVAR]) )
-		{
-			$fail = $ci->hAtsData[TPLVAR]['fail'];
+        if ( array_key_exists('fail', $ci->hAtsData[TPLVAR]) )
+        {
+            $fail = $ci->hAtsData[TPLVAR]['fail'];
 
-			echo "<div style='cursor:pointer;' class='response_fail' onclick=\"javascript:this.style.display='none';\">$fail</div>";
-		}
+            echo "<div style='cursor:pointer;' class='response_fail' onclick=\"javascript:this.style.display='none';\">{$fail}</div>";
+        }
 
-		// add some jQuery to auto close message if jQuery available
-		echo "<script type='text/javascript'>
-				if(window.jQuery) {
-					setTimeout(function() {
-						jQuery('[class^=\"response_\"]').animate({ height: 0, opacity: 0, margin: 0 }, 'slow', function() {jQuery(this).remove();});
-					}, 8000);
-				}
-			   </script>";
-	}
+        // add some jQuery to auto close message if jQuery available
+        echo "<script type='text/javascript'>
+                if(window.jQuery) {
+                    setTimeout(function() {
+                        jQuery('[class^=\"response_\"]').animate({ height: 0, opacity: 0, margin: 0 }, 'slow', function() {jQuery(this).remove();});
+                    }, 8000);
+                }
+               </script>";
+    }
 }
 
 
@@ -940,123 +934,140 @@ if (!function_exists('tplResponse_message'))
 
 if (!function_exists('_tplGetThemeFile'))
 {
-	/**
-	 * main handler to return a fully qualified path to file within the current theme
-	 * @version	29-Oct-2013
-	 *
-	 * @param	string	$type				'css', 'js', or 'img' (or anything you want to specify, e.g. 'media', etc.)
-	 * @param	string	$file				filename (eg. 'style.css')
-	 * @param	bool	$in_parts_subdir	Are theme files in subfolders named after Parts setting?
-	 * 										True=Yes, e.g. /theme/js/signup/validation.js
-	 * 										False=No, e.g. /theme/js/validation.js
-	 * @return	string						path to specified theme file
-	 */
-	function _tplGetThemeFile($type="", $file="", $in_parts_subdir=TRUE)
-	{
-		// @TODO remove this block
-		//
-		// get current webroot
-		// will default to ./ but if this is failing to find correct path,
-		// you can specify a full path as 'webRoot' in the config.php file
-		// $ci=& get_instance();
-		// $webRoot = $ci->config->item('webRoot');
-		// if ( empty($webRoot) ) $webroot = './';
+    /**
+     * main handler to return a fully qualified path to file within the current theme
+     * @version 25-Feb-2014
+     *
+     * @param   string  $type               'css', 'js', or 'img' (or anything you want to specify, e.g. 'media', etc.)
+     * @param   string  $file               filename (eg. 'style.css')
+     * @param   bool    $in_parts_subdir    Are theme files in subfolders named after Parts setting?
+     *                                      True=Yes, e.g. /theme/js/signup/validation.js
+     *                                      False=No, e.g. /theme/js/validation.js
+     * @return  string                      path to specified theme file
+     */
+    function _tplGetThemeFile( $type='', $file='', $in_parts_subdir=true )
+    {
+        _tplDebug('GET THEME FILE: '.tplGet('themePath').'|'. tplGet('theme').'|'. $type.'|'. tplGet('parts') .'|'. $file);
 
-		$theme = _addSlash(_addSlash(tplGet('themePath')).tplGet('theme'));
+        $findfile = _makePath(tplGet('themePath'), tplGet('theme'), $type, tplGet('parts')) . $file;
 
-		$type = (empty($type)) ? "" : _addSlash($type);
+        _tplDebug('FINDFILE: '.$findfile);
 
-		$part = ($in_parts_subdir) ? tplGet('parts') : '';
-
-		if (! empty($part)) {
-			$part = _addSlash($part);
-		}
-
-		return _tplFindFile($theme.$type.$part.$file);
-	}
+        return _tplFindFile($findfile);
+    }
 }
 
 
 if (!function_exists('_addSlash'))
 {
-	/**
-	 * Add slash to end of string
-	 * @version 30-Sep-2013
-	 *
-	 * @param string $string  String to append slash to
-	 * @param bool   $trim 	  Should the string be trimmed first
-	 *
-	 * @return string 			String with ending slash
-	 */
-	function _addSlash($string, $trim=TRUE) {
-		if ($trim)
-			$string = trim($string);
+    /**
+     * Add slash to end of string
+     * @version 30-Sep-2013
+     *
+     * @param string $string  String to append slash to
+     * @param bool   $trim    Should the string be trimmed first
+     *
+     * @return string         String with ending slash
+     */
+    function _addSlash( $string, $trim=true ) {
+        if ($trim)
+            $string = trim($string);
 
-		if ('/' != substr($string, -1))
-			$string .= '/';
+        if ('/' != substr($string, -1))
+            $string .= '/';
 
-		return $string;
-	}
+        return $string;
+    }
+}
+
+if (!function_exists('_makePath'))
+{
+    /**
+     * Create path from passed parameters
+     * @version 25-Feb-2014
+     *
+     * @param multi $string  Strings of elements to build path from
+     *
+     * @return string        Concatenated Path with trailing slash
+     */
+    function _makePath() {
+        $params = func_get_args();
+        $path = '';
+
+        foreach ($params as $value) {
+            $path .= $value;
+
+            if (!empty($value)) $path = _addSlash($path);
+        }
+
+        return $path;
+    }
 }
 
 if (!function_exists('_addFileExt'))
 {
-	/**
-	 * Append file extension to filename
-	 * @version 07-Oct-2013
-	 *
-	 * @param string $file Original file path/name
-	 * @param string $ext  File extension to be added. Defaults to .phtml
-	 *
-	 * @return  string Filename with file extension
-	 */
-	function _addFileExt($file, $ext='phtml', $force = FALSE) {
-		$file = trim($file);
+    /**
+     * Append file extension to filename
+     * @version 07-Oct-2013
+     *
+     * @param string $file Original file path/name
+     * @param string $ext  File extension to be added. Defaults to .phtml
+     *
+     * @return  string Filename with file extension
+     */
+    function _addFileExt( $file, $ext='phtml', $force = false ) {
+        $file = trim($file);
 
-		// add extension if one not present
-		if ('' == pathinfo($file, PATHINFO_EXTENSION) OR $force)
-		{
-			return $file.'.'.$ext;
-		}
+        // add extension if one not present
+        if ('' == pathinfo($file, PATHINFO_EXTENSION) OR $force)
+        {
+            return $file.'.'.$ext;
+        }
 
-		// already has a file extension, so just return original name
-		return $file;
-	}
+        // already has a file extension, so just return original name
+        return $file;
+    }
 }
 
 
 if (!function_exists('_tplFindFile'))
 {
-	/**
-	 * Look for the specified $file. If not found, traverse parent folder until found.
-	 * @version	29-Oct-2013
-	 *
-	 * @param	string	$file			filename requested, including path
-	 *
-	 * @return	string					path of found file
-	 */
-	function _tplFindFile($file) {
+    /**
+     * Look for the specified $file. If not found, traverse parent folder until found.
+     * @version 27-Feb-2014
+     *
+     * @param   string  $file           filename requested, including path
+     *
+     * @return  string                  path of found file
+     */
+    function _tplFindFile($file) {
 
-		// SEARCH for specified file
-		// use for-loop instead of while to prevent against infinite loop when searching
-		// we will only traverse back 50 parent folders maximum
+        // SEARCH for specified file
+        // we will only traverse back 50 parent folders maximum
 
-		for ( $lwp=50; $lwp>0; $lwp-- )
-		{
-			// see if the file exists at the new filepath
-			if ( file_exists($file) )
-			{
-				// file found, quit looking
-				break;
-			}
-			// get parent location
-			$file = dirname(dirname($file))."/".basename($file);
-		}
+        for ( $lwp=50; $lwp>0; $lwp-- )
+        {
+            _tplDebug( 'LOOKING IN: '.$file );
 
-		_tplDebug( "FINDFILE FOUND: ".$file );
+            // quit if file found
+            if ( file_exists($file) )
+                break;
 
-		return $file;
-	}
+            // store current location
+            $current = $file;
+
+            // get parent location
+            $file = _makePath(dirname(dirname($file))) . basename($file);
+
+            // quit if we've reached the root
+            if ($current == $file)
+                break;
+        }
+
+        _tplDebug( 'FINDFILE FOUND: '.$file );
+
+        return $file;
+    }
 }
 
 /* End of file: hats_helper.php */

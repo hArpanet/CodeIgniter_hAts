@@ -22,7 +22,7 @@ class Hats_example extends CI_Controller {
         // load hATS helper (best add it to autoload.php)
         $this->load->helper('hats');
 
-        /* set template parts folder to name of current class
+        /* set hATS parts folder to name of current class
          * (if not set, 'hAts_default' is assumed
          *  which is good for this example but not for your site!)
          *  You SHOULD add this to your controllers!
@@ -84,7 +84,7 @@ class Hats_example extends CI_Controller {
         // note that we are 'add'ing body content not 'set'ting it. Setting a variable
         // overwrites anything previously stored within it.
         tplSet('bodyContent',  '<h2>This is the [bodyContent]</h2>');
-        tplAdd('bodyContent',  '<p>Some content for the hATS template example contoller.</p>');
+        tplAdd('bodyContent',  '<p>Some content for the hATS example controller.</p>');
         tplAdd('bodyContent',  '<p>This is more content added after the above paragraph.</p>');
 
         // we can add other parts here (no file extension required - .phtml assumed)
@@ -110,7 +110,7 @@ class Hats_example extends CI_Controller {
         /* The recommended way to set and show response messages is to create a flagResponse() method like
          * the one below, but as an example we will just do it inline here...
          */
-        // flag some responses (note: the hAts default template already contains a call to tplResponse_message() in body_open.phtml)
+        // flag some responses (note: the hAts default Parts already contains a call to tplResponse_message() in body_open.phtml)
         tplAdd('success', ':-) THIS IS A SUCCESS MESSAGE - click me to go away, or I\'ll auto fade if jQuery exists!');
         tplAdd('fail',    ':-( THIS IS A FAIL MESSAGE    - click me to go away, or I\'ll auto fade if jQuery exists!');
 
@@ -130,7 +130,7 @@ class Hats_example extends CI_Controller {
      * @param   string  $msg        Message text to display to user. If not specified, default text
      *                              from config file will be used.
      *
-     * @uses    template_helper.php     - must already be loaded by controller
+     * @uses    hats_helper.php     - must already be loaded by controller
      */
     public function flagResponse($result, $msg='')
     {

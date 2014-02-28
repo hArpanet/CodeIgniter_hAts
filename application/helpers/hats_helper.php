@@ -10,11 +10,10 @@
  * @copyright   Copyright (c) 2012+, hArpanet
  * @license     http://codeigniter.com/user_guide/license.html
  * @link        http://harpanet.com
- * @version     Version 2.0.0 / 140225
+ * @version     Version 2.0.0 / 140228
  *
  * @requires    GLOBAL PROPERTY ARRAY $hAtsData[] to be present and set in your controller (see _checkTplVar below)
  *
- * @method      tplSetTemplate  ( $theme, $parts )                      - v1.5.0 modified v1.8.0 fixed bugs with default values
  * @method      tplPartsPath    ( $file, $in_theme, $use_baseurl )      - v1.7.0 modified v1.8.0 fixed path bugs
  * @method      tplGetPath      ( $file, $in_theme, $use_baseurl )      - v1.5.0 removed in v1.7.0
  * @method      tplStylesheet   ( $file, $in_parts_subdir, $in_theme )  - v1.5.0 modified v1.7.0 changed parameter order & defaults
@@ -33,17 +32,15 @@
  * @method      tplGetParts     ( )                                     - v1.5.1 modified v1.7.0 - runs tplSet() against any $data
  * @method      tplGetPart      ( $part )                               - v1.5.0 modified v1.5.4
  * @method      tplGetPartAsHtml( $part )                               - v1.5.4
- * @method      tplResponse_message( )                                  - v1.5.x modified v1.6.1 added jQuery fadout to messages
+ * @method      tplResponse_message( $name, $css )                      - v1.5.x modified v1.6.1 added jQuery fadout to messages
  *
  * @method      _tplGetThemeFile($type='', $file='', $in_parts_subdir)  - v1.2.0 modified v1.7.2 code tidying
  * @method      _addSlash($string, $trim)                               - v1.7.0 added
  * @method      _makePath(<multiple params>)                            - v1.8.0 added
  * @method      _tplFindFile($file)                                     - v1.7.0 added
+ * @method      _tplSetDefaults( )                                      - v1.5.0 added v2.0.0 renamed from tplSetTemplate()
  *
- * @example     In your Controller, use:    tplSet('varName',   'var content');
- * @example     In your Views, use:         <?php echo tplGet('varName'); ?>
- *
- * @note        RESERVED TEMPLATE VARIABLES for tplSet / tplGet
+ * @note        RESERVED hATS VARIABLES for tplSet / tplGet
  * @note            ['theme']       - name of theme in use
  * @note            ['themePath']   - location (folder name) of theme files
  * @note            ['parts']       - name of part in use
@@ -51,6 +48,9 @@
  * @note            ['viewPart']    - array containing names of view parts to display - use tplAddPart() & tplGetPart()
  * @note            ['css']         - array containing names of css files to display - use tplAddStylesheet()
  * @note            ['js']          - array containing names of js  files to output  - use tplAddJavascript()
+ * @note            ['STOP_ON_ERROR'] - if this variable contains any value, a PHP error will be generated if a parts file is not found
+ * @note            ['success']     - if you use tplResponse_message(), it assumes anything in the 'success' var is the message to show
+ * @note            ['fail']        - if you use tplResponse_message(), it assumes anything in the 'fail' var is the message to show
  */
 
 /*
@@ -58,8 +58,7 @@
  * =================
  */
 
-define('TPLVAR',        'hATS');    // the array key (in $hAtsData) used to store all template values
-define('hAts_DEBUG',    /**/ FALSE /*/ TRUE /**/);      // either use tplSet('debug', true) or set it manually here (delete a * from opening /**/)
+define('TPLVAR', 'hATS');    // the array key (in $hAtsData) used to store all hATS values
 
 /*
  * INTERNAL FUNCTIONS - used by other hATS functions
@@ -70,19 +69,14 @@ if (!function_exists('_tplDebug'))
 {
     function _tplDebug( $msg='' )
     /**
-     * Enable/Disable output of template debug messages
-     * @version 14-Jun-2012
+     * If debugging enabled, output hATS debug messages
+     * @version 28-Feb-2014
      *
      * @return  bool    current setting     (True = enabled, False = disabled)
      */
     {
-        // set debugging on or off
-        if (tplGet('debug') === TRUE) {
-            $ENABLED = tplGet('debug');
-        } else {
-            // use global setting
-            $ENABLED = hAts_DEBUG;
-        }
+        // get debugging state
+        $ENABLED = (tplGet('debug') === TRUE) ? TRUE : FALSE;
 
         if ( $ENABLED && $msg ) {
             echo "<div style='color:grey; clear:both; font-size:10px;'>{$msg}</div>";
@@ -119,38 +113,6 @@ if (!function_exists('_checkTplVar'))
  * ================
  */
 
-if (!function_exists('tplSetTemplate'))
-{
-    /**
-     * Set names of theme and parts to use
-     * @version 25-Feb-2014
-     *
-     * @param   string  $theme  name of theme
-     * @param   string  $parts  name of parts
-     * @return          $this
-     *
-     * NOTE:
-     * The default folders can be overridden in the application
-     * controller by specifying new ones (using tplSet lines similar
-     * to those used below)
-     */
-    function tplSetTemplate( $theme='hAts_default', $parts='hAts_default' )
-    {
-        // default paths if not already set
-        if ('' == tplGet('themePath'))
-            tplSet('themePath','hAts/theme');
-
-        if ('' == tplGet('partsPath'))
-                tplSet('partsPath','hAts/parts');
-
-        if ('' == tplGet('theme') OR $theme != 'hAts_default')
-                tplSet('theme', $theme);
-
-        if ('' == tplGet('parts') OR $parts != 'hAts_default')
-                tplSet('parts', $parts);
-    }
-}
-
 if (!function_exists('tplPartsPath'))
 {
     /**
@@ -169,8 +131,7 @@ if (!function_exists('tplPartsPath'))
         $newfile = '';
 
         // if paths not already set, set default ones
-        if (tplGet('themePath').tplGet('partsPath') == '')
-            tplSetTemplate();
+        _tplSetDefaults();
 
         // get baseurl if requested
         $baseurl = ($use_baseurl) ? FCPATH : '';
@@ -569,10 +530,10 @@ if (!function_exists('tplImage'))
 if (!function_exists('tplSet'))
 {
     /**
-     * SET VALUE OF TEMPLATE VARIABLE - overwrite existing value
+     * SET VALUE OF hATS VARIABLE - overwrite existing value
      * @version 14-Sept-2012
      *
-     * @param   string  $var    template variable name
+     * @param   string  $var    hATS variable name
      *                          NOTE: As of @version 1.5.7...
      *                                $var can now be passed as an assoc array, but if this
      *                                is used then it can only set plain variable values
@@ -636,10 +597,10 @@ if (!function_exists('tplSet'))
 if (!function_exists('tplAdd'))
 {
     /**
-     * Add another value to named template variable (value will be string appended to existing value)
+     * Add another value to named hATS variable (value will be string appended to existing value)
      * @version 14-Jun-2012
      *
-     * @param   string  $var    template variable name
+     * @param   string  $var    hATS variable name
      * @param   mixed   $val    value to set
      * @return          $this
      */
@@ -662,7 +623,7 @@ if (!function_exists('tplAdd'))
 if (!function_exists('tplGet'))
 {
     /**
-     * GET TEMPLATE VALUE
+     * GET hATS VARIABLE VALUE
      * @version 14-Jun-2012
      *
      * @param   string      $var    name of variable to retrieve
@@ -713,7 +674,7 @@ if (!function_exists('tplGet'))
 if (!function_exists('tplGetOr'))
 {
     /**
-     * GET TEMPLATE VALUE OR RETURN SPECIFIED VALUE IF BLANK
+     * GET hATS VARIABLE VALUE OR RETURN SPECIFIED VALUE IF BLANK
      * NOTE: YOU CANNOT GET AN ARRAY VALUE USING tplGetOr
      * @version 18-Dec-2012
      *
@@ -745,8 +706,8 @@ if (!function_exists('tplGetOr'))
 if (!function_exists('tplAddPart'))
 {
     /**
-     * Add a template Part to the stack - for output with getParts()
-     * A template 'part' is a small block of pHTML that can be included within
+     * Add a hATS Part to the stack - for output with getParts()
+     * A hATS 'part' is a small block of pHTML that can be included within
      * another pHTML part file.
      * @version 07-Oct-2013
      *
@@ -781,8 +742,8 @@ if (!function_exists('tplAddPart'))
 if (!function_exists('tplGetPart'))
 {
     /**
-     * Get existing template Part contents (uses PHP 'require')
-     * A template 'part' is a small block of pHTML that can be included within
+     * Get existing hATS Part contents (uses PHP 'require')
+     * A hATS 'part' is a small block of pHTML that can be included within
      * another pHTML part file.
      * @version 07-Oct-2013
      *
@@ -797,15 +758,21 @@ if (!function_exists('tplGetPart'))
 
         _tplDebug( 'GETTING PART:'.$part );
 
-        require tplPartsPath($part);
+        $part = tplPartsPath($part);
+
+        if (file_exists($part) OR !empty(tplGet('STOP_ON_ERROR'))) {
+            require $part;
+        } else {
+            echo "<div class='response_fail'>UNABLE TO FIND PART: {$part}</div>";
+        }
     }
 }
 
 if (!function_exists('tplGetPartAsHtml'))
 {
     /**
-     * Get contents of a template Part as a string value
-     * A template 'part' is a small block of pHTML that can be included within
+     * Get contents of a hATS Part as a string value
+     * A hATS 'part' is a small block of pHTML that can be included within
      * another pHTML part file.
      * @version 07-Oct-2013
      *
@@ -853,6 +820,8 @@ if (!function_exists('tplGetParts'))
                         // create part-specific variables
                         foreach($data as $var=>$value) {
                             tplSet($var, $value);
+
+                            _tplDebug('SET VARIABLE FROM PART: '.$var.'='.htmlspecialchars($value));
                         }
                     }
 
@@ -861,7 +830,7 @@ if (!function_exists('tplGetParts'))
                     tplGetPart( $part );
                 }
 
-            }else{
+            } else {
 
                 // this should never happen as all parts are added as array entities, but just in case!...
 
@@ -1067,6 +1036,35 @@ if (!function_exists('_tplFindFile'))
         _tplDebug( 'FINDFILE FOUND: '.$file );
 
         return $file;
+    }
+}
+
+
+if (!function_exists('_tplSetDefaults'))
+{
+    /**
+     * Set default names/paths of theme and parts
+     * @version 28-Feb-2014
+     * @return  void
+     *
+     * NOTE:
+     * The default folders can be overridden in the application
+     * controller by using tplSet lines similar to those used below.
+     */
+    function _tplSetDefaults()
+    {
+        // default paths if not already set
+        if ('' == tplGet('themePath'))
+            tplSet('themePath','hAts/theme');
+
+        if ('' == tplGet('partsPath'))
+                tplSet('partsPath','hAts/parts');
+
+        if ('' == tplGet('theme'))
+                tplSet('theme', 'hAts_default');
+
+        if ('' == tplGet('parts'))
+                tplSet('parts', 'hAts_default');
     }
 }
 

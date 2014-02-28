@@ -1,0 +1,87 @@
+hArpanet Template System Changelog
+==================================
+Key: + = something added
+     - = something removed
+     ~ = something changed
+     : = a comment or further info
+==================================
+
+--------------------
+v2.0.0 - 25-Feb-2014
+--------------------
+hats_helper.php
++ _makePath() private method to help build paths
+~ Changed default theme & parts folder locations
+~ Changed calls from _addSlash() to _makePath() throughout
+~ fixed some path bugs
+~ Some code standardisation and prettying
+~ Changed all " to ' throughout where relevant
+~ _tplFindFile() update to stop looking when root path found
+
+STRUCTURAL CHANGES:
+Controllers folder:
++ /application/controllers folder added
++ added new controller (hats_controller.php) as an example, showing example page content
+
+Core folder:
+- /application/core removed (as well as MY_Controller.php within it)
+
+hAts root folder:
++ /hAts - new root folder to contain all hATS themes and part files
+~ /theme/parts moved   -> /hAts/parts
+~ /theme/parts/default -> /hAts/parts/hAts_default
+~ /theme moved         -> /hAts/theme
+~ /theme/default       -> /hAts/theme/hAts_default
+
+Views:
+: /application/views/
+~ layout_default.php  -> hats_default.php
+~ layout_frameset.php -> hats_frameset.php
+
+Parts file changes:
++ hAts/parts/hAts_default/test/testpart.phtml added as an example (used in new hats_controller)
+: plus various html updates to all default parts
+: plus file relocation/renames of all default parts...
+~ parts/default/head.php         -> parts/hAts_default/head.phtml
+~ parts/default/body_open.php    -> parts/hAts_default/body_open.phtml
+~ parts/default/body_content.php -> parts/hAts_default/body_content.phtml
+~ parts/default/body_footer.php  -> parts/hAts_default/body_footer.phtml
+~ parts/default/body_close.php   -> parts/hAts_default/body_close.phtml
+
+CHANGELOG.txt
++ (this) new file added into root
+
+
+
+---------------------
+v1.7.1 - 29-Oct-2013
+---------------------
++ _tplFindFile() private method added to help locate template files
+: various functions updated to use _tplFindFile()
+
+
+---------------------
+v1.7.0 - 09-Oct-2013
+---------------------
+hats_helper.php
++ _addSlash() private method added to help process file paths
++ _addFileExt() private method added to append file extensions
+~ template parts extension changed from .php to .phtml (handled in _addFileExt)
+~ tplStylesheet() changed parameter order + defaults
+~ tplStylesheets() now also processes css outside theme
+~ tplJavascript() changed parameter order + defaults; now allows js outside theme (eg. /assets/js)
+~ tplJavascriptParsed() changed parameter order + defaults
+~ tplJavascripts() now also processes js outside theme
+~ tplAddJavascript() added parts & theme parameters to allow js from outside current theme
+~ tplImage() changed parameter order + defaults
+~ tplAddPart() added new $data parameter to allow vars to be 'auto' set within the call (using tplSet)
+~ tplGetParts() now runs tplSet() against any $data
+~ tplGetThemeFile() now defaults to parts in_parts_subdir
++ ['themePath'] restricted template variable added
++ ['partsPath'] restricted template variable added
+~ tplSetTemplate() now uses 'themePath' and 'partsPath' vars instead of hardcoded '/theme/' and '/parts/'
+- tplGetPath() removed
++ tplPartsPath() added (renamed from tplGetPath and parameters changed)
+~ tplPartsPath() now uses 'themePath' and 'partsPath' vars instead of hardcoded '/theme/' and '/parts/'
+
+-- changelog end --

@@ -3,8 +3,6 @@
 /**
  * hArpanet Template System (hATS) helper
  *
- * @TODO Change order of parameters - put $in_theme before $in_parts_subdir in all functions!
- *
  * @package     hATS
  * @author      DH
  * @copyright   Copyright (c) 2012+, hArpanet
@@ -14,16 +12,16 @@
  *
  * @requires    GLOBAL PROPERTY ARRAY $hAtsData[] to be present and set in your controller (see _checkTplVar below)
  *
- * @method      tplPartsPath    ( $file, $in_theme, $use_baseurl )      - v1.7.0 modified v1.8.0 fixed path bugs
+ * @method      tplPartsPath    ( $file, $in_theme, $use_baseurl )      - v1.7.0 modified v2.0.0 fixed path bugs
  * @method      tplGetPath      ( $file, $in_theme, $use_baseurl )      - v1.5.0 removed in v1.7.0
- * @method      tplStylesheet   ( $file, $in_parts_subdir, $in_theme )  - v1.5.0 modified v1.7.0 changed parameter order & defaults
+ * @method      tplStylesheet   ( $file, $in_theme )                    - v1.5.0 modified v2.0.0 removed $in_parts_subdir parameter
  * @method      tplStylesheets  ( )                                     - v1.5.2 modified v1.7.0 now also processes css outside theme
  * @method      tplAddStylesheet( $css )                                - v1.5.2
- * @method      tplJavascript   ( $file, $in_parts_subdir, $in_theme )  - v1.5.0 modified v1.7.0 changed parameter order & defaults
- * @method      tplJavascriptParsed ( $file, $in_parts_subdir, $in_theme )  - v1.6.0 modified v1.7.0 changed parameter order & defaults
+ * @method      tplJavascript   ( $file, $in_theme )                    - v1.5.0 modified v2.0.0 removed $in_parts_subdir parameter
+ * @method      tplJavascriptParsed ( $file, $in_theme )                - v1.6.0 modified v2.0.0 removed $in_parts_subdir parameter
  * @method      tplJavascripts  ( )                                     - v1.5.3 modified v1.7.0 now also processes js outside theme
- * @method      tplAddJavascript( $js, $in_parts_subdir, $in_theme )    - v1.5.3 modified v1.7.0 added theme & parts parameters
- * @method      tplImage        ( $file, $in_parts_subdir, $in_theme )  - v1.5.0 modified v1.7.0 changed parameter order & defaults
+ * @method      tplAddJavascript( $js, $in_theme )                      - v1.5.3 modified v2.0.0 removed $in_parts_subdir parameter
+ * @method      tplImage        ( $file, $in_theme )                    - v1.5.0 modified v2.0.0 removed $in_parts_subdir parameter
  * @method      tplSet          ( $var, $val, $elem )                   - v1.1.0 modified v1.5.7
  * @method      tplAdd          ( $var, $val, $nl )                     - v1.1.0
  * @method      tplGet          ( $var [,$elem] )                       - v1.1.0
@@ -34,11 +32,11 @@
  * @method      tplGetPartAsHtml( $part )                               - v1.5.4
  * @method      tplResponse_message( $name, $css )                      - v1.5.x modified v1.6.1 added jQuery fadout to messages
  *
- * @method      _tplGetThemeFile($type='', $file='', $in_parts_subdir)  - v1.2.0 modified v1.7.2 code tidying
- * @method      _addSlash($string, $trim)                               - v1.7.0 added
- * @method      _makePath(<multiple params>)                            - v1.8.0 added
- * @method      _tplFindFile($file)                                     - v1.7.0 added
- * @method      _tplSetDefaults( )                                      - v1.5.0 added v2.0.0 renamed from tplSetTemplate()
+ * @method      _tplGetThemeFile( $type, $file )                        - v1.2.0 modified v2.0.0 in_parts_subdir changes
+ * @method      _addSlash       ( $string, $trim )                      - v1.7.0 added
+ * @method      _makePath       ( <multiple params> )                   - v2.0.0 added
+ * @method      _tplFindFile    ( $file )                               - v1.7.0 added
+ * @method      _tplSetDefaults ( )                                     - v1.5.0 added v2.0.0 renamed from tplSetTemplate()
  *
  * @note        RESERVED hATS VARIABLES for tplSet / tplGet
  * @note            ['theme']       - name of theme in use
@@ -166,15 +164,12 @@ if (!function_exists('tplStylesheet'))
      * @version 29-Oct-2013
      *
      * @param   string  $file               path/name of stylesheet - without (or with .css) (eg. style or style.css)
-     * @param   bool    $in_parts_subdir    Are stylesheet files in subfolders named after Parts setting?
-     *                                      True=Yes, e.g. /theme/css/techRS/mystyle.css
-     *                                      False=No, e.g. /theme/css/mystyle.css
      * @param   bool    $in_theme           Is stylesheet located in theme folder? Yes=True, No=False
      *                                      If No, assume full path has been specified
      *
      * @return  string                      HTML stylesheet element
      */
-    function tplStylesheet( $file, $in_parts_subdir=true, $in_theme=true )
+    function tplStylesheet( $file, $in_theme=true )
     {
         if (!empty($file))
         {
@@ -184,7 +179,7 @@ if (!function_exists('tplStylesheet'))
             if ($in_theme)
             {
                 // get location of file from theme
-                $retval = "<link rel='stylesheet' href='" ._tplGetThemeFile('css', $file, $in_parts_subdir). "' type='text/css'>\n";
+                $retval = "<link rel='stylesheet' href='" ._tplGetThemeFile('css', $file). "' type='text/css'>\n";
             }
             else
             {
@@ -222,13 +217,12 @@ if (!function_exists('tplStylesheets'))
             if ( is_array($parts) ) {
                 foreach( $parts as $css_data ) {
 
-                    $css = $css_data['css'];
-                    $css_theme = $css_data['intheme'];
-                    $css_parts = $css_data['inparts'];
+                    $css      = $css_data['css'];
+                    $in_theme = $css_data['intheme'];
 
                     _tplDebug( 'STYLESHEETS: CSS REQUESTED: '.$css );
 
-                    $retval .= tplStylesheet( $css, $css_parts, $css_theme );
+                    $retval .= tplStylesheet( $css, $in_theme );
                 }
 
             } else {
@@ -255,22 +249,17 @@ if (!function_exists('tplAddStylesheet'))
      *
      * @param   string  $css    name of stylesheet to load - excluding (or including .css file extension)
      *                          the path is automatically located in /theme/[theme name]/css/[css name]/
-     * @param   string  $in_parts_subdir Flag indicating if current Parts name should be added to path of this css file
      * @param   string  $in_theme        Flag indicating if this css file exists within the current theme
      *
      * @return  void
      */
-    function tplAddStylesheet( $css, $in_parts_subdir=true, $in_theme=true )
+    function tplAddStylesheet( $css, $in_theme=true )
     {
         _checkTplVar();
 
         $ci=& get_instance();
 
-        // add parts path if required
-        if ($in_parts_subdir)
-            $css = _makePath(tplGet('parts')) . $css;
-
-        $ci->hAtsData[TPLVAR]['css'][] = array('css'=>$css, 'intheme'=>$in_theme, 'inparts'=>$in_parts_subdir);
+        $ci->hAtsData[TPLVAR]['css'][] = array('css'=>$css, 'intheme'=>$in_theme);
     }
 }
 
@@ -290,12 +279,9 @@ if (!function_exists('tplJavascript'))
      * @param   string  file                path/name of javascript (eg. jQuery.js or just jQuery)
      * @param   bool    $in_theme           Is javascript located in theme folder? Yes=True, No=False
      *                                      If No, assume full path has been specified
-     * @param   bool    $in_parts_subdir    Are javascript files in subfolders named after Parts setting?
-     *                                      True=Yes, e.g. /theme/js/techRS/validate.js
-     *                                      False=No, e.g. /theme/js/validate.js
      * @return  string                      HTML javascript element
      */
-    function tplJavascript( $file, $in_parts_subdir=true, $in_theme=true )
+    function tplJavascript( $file, $in_theme=true )
     {
         if (!empty($file))
         {
@@ -307,10 +293,6 @@ if (!function_exists('tplJavascript'))
             if ($in_theme)
             {
                 _tplDebug('JS FROM THEME!');
-
-                // add parts path if required
-                if ($in_parts_subdir)
-                    $file = _makePath(tplGet('parts')) . $file;
 
                 // get location of file from theme
                 $retval = "<script type='text/javascript' src='" ._tplGetThemeFile('js', $file, FALSE). "'></script>";
@@ -340,12 +322,9 @@ if (!function_exists('tplJavascriptParsed'))
      * @param   string  file                path/name of javascript (eg. jQuery.js or just jQuery)
      * @param   bool    $in_theme           Is javascript located in theme folder?
      *                                      If No, assume full path has been specified
-     * @param   bool    $in_parts_subdir    Are javascript files in subfolders named after Parts setting?
-     *                                      True=Yes, e.g. /theme/js/techRS/validate.js
-     *                                      False=No, e.g. /theme/js/validate.js
      * @return  string                      HTML javascript <script> block
      */
-    function tplJavascriptParsed( $file, $in_parts_subdir=true, $in_theme=true )
+    function tplJavascriptParsed( $file, $in_theme=true )
     {
         // no point doing anything if filename not specified
         if ( ! empty($file))
@@ -358,7 +337,7 @@ if (!function_exists('tplJavascriptParsed'))
             if ($in_theme)
             {
                 // get location of file from theme
-                $file = _tplGetThemeFile('js', $file, $in_parts_subdir);
+                $file = _tplGetThemeFile('js', $file);
                 $file = realpath($_SERVER['DOCUMENT_ROOT']) .$file;
             }
 
@@ -401,23 +380,22 @@ if (!function_exists('tplJavascripts'))
             if ( is_array($parts) ) {
                 foreach( $parts as $js_data ) {
 
-                    $js = $js_data['js'];
-                    $js_theme = $js_data['intheme'];
-                    $js_parts = $js_data['inparts'];
+                    $js       = $js_data['js'];
+                    $in_theme = $js_data['intheme'];
 
                     // check if js name contains 'parse' flag '#'
-                    if ( substr($js, 0, 1) == '#' )
+                    if ( $js[0] == '#' )
                     {
                         _tplDebug( "JAVASCRIPTS: PARSED JS REQUIRED: {$js}" );
 
                         // this javascript needs to be parsed for PHP tags
-                        $retval .= tplJavascriptParsed( substr($js, 1), $js_location, $js_parts );
+                        $retval .= tplJavascriptParsed( substr($js, 1), $in_theme );
                     }
                     else
                     {
                         _tplDebug( "JAVASCRIPTS: NORMAL JS REQUIRED: {$js}" );
 
-                        $retval .= tplJavascript( $js, $js_parts, $js_theme );
+                        $retval .= tplJavascript( $js, $in_theme );
                     }
 
                     _tplDebug("JAVASCRIPTS: JS RETURNED: {$retval}");
@@ -445,35 +423,27 @@ if (!function_exists('tplAddJavascript'))
      * @version 11-Sept-2012
      *
      * NOTE: To add javascript from non theme locations (e.g. /assets/js)
-     *       ensure $in_theme and $in_parts_subdir are passed as FALSE.
+     *       ensure $in_theme is passed as FALSE and put full filepath into $file.
      *
      * NOTE: precede the javascript filename with hash symbol to indicate if it should be 'parsed'
      *       for PHP code during later processing with tplJavascripts()
      *       eg. '#add_user' would cause the 'add_user.js' file to be passed to tplJavascriptParsed() before output
      *           'add_user'  would cause the 'add_user.js' file to be output as-is
      *
-     * @param   string  $js     name of javascript to load - excluding (or including) .js file extension
+     * @param   string  $file   name of javascript to load - excluding (or including) .js file extension
      *                          the path is automatically located in /theme/[theme name]/js/[js name]/
      *                          if the following two parameters are left TRUE
-     * @param   string  $in_parts_subdir Flag indicating if current Parts name should be added to path of this js file
-     *                                   Default to FALSE to aid disambiguation (ie. specify the part name in the filepath instead)
      * @param   string  $in_theme        Flag indicating if current Parts name is within the current theme folder
      *
      * @return  void
      */
-    function tplAddJavascript( $js, $in_parts_subdir=true, $in_theme=true )
+    function tplAddJavascript( $file, $in_theme=true )
     {
         _checkTplVar();
 
         $ci=& get_instance();
 
-        // @TODO remove this block (now handled in tplJavascript)
-        //
-        // add parts path if required
-        // if ($in_parts_subdir)
-        //  $js = _addSlash(tplGet('parts')) . $js;
-
-        $ci->hAtsData[TPLVAR]['js'][] = array('js'=>$js, 'inparts'=>$in_parts_subdir, 'intheme'=>$in_theme);
+        $ci->hAtsData[TPLVAR]['js'][] = array('js'=>$jfile, 'intheme'=>$in_theme);
     }
 }
 
@@ -494,12 +464,9 @@ if (!function_exists('tplImage'))
      * @param   string  file    path/name of image (eg. companyLogo.png) - NOTE: file extension required
      * @param   bool    $in_theme           Is image located in theme folder? Yes=True, No=False
      *                                      If No, assume full path has been specified
-     * @param   bool    $in_parts_subdir    Are image files in subfolders named after Parts setting?
-     *                                      True=Yes, e.g. /theme/img/techRS/machine.png
-     *                                      False=No, e.g. /theme/img/machine.png
      * @return  string          filepath
      */
-    function tplImage( $file, $in_theme=true, $in_parts_subdir=true )
+    function tplImage( $file, $in_theme=true )
     {
         // TODO:    Possibly need a 'tplImages()' function to return multiple HTML include lines for multiple image files
         //          as per tplGetParts()
@@ -508,7 +475,7 @@ if (!function_exists('tplImage'))
         {
             // get location of file from theme
 
-            $retval = _tplGetThemeFile('img', $file, $in_parts_subdir);
+            $retval = _tplGetThemeFile('img', $file);
         }
         else
         {
@@ -909,18 +876,24 @@ if (!function_exists('_tplGetThemeFile'))
      *
      * @param   string  $type               'css', 'js', or 'img' (or anything you want to specify, e.g. 'media', etc.)
      * @param   string  $file               filename (eg. 'style.css')
-     * @param   bool    $in_parts_subdir    Are theme files in subfolders named after Parts setting?
-     *                                      True=Yes, e.g. /theme/js/signup/validation.js
-     *                                      False=No, e.g. /theme/js/validation.js
+     *
      * @return  string                      path to specified theme file
      */
-    function _tplGetThemeFile( $type='', $file='', $in_parts_subdir=true )
+    function _tplGetThemeFile( $type='', $file='' )
     {
-        _tplDebug('GET THEME FILE: '.tplGet('themePath').'|'. tplGet('theme').'|'. $type.'|'. tplGet('parts') .'|'. $file);
+        // Check if searching within Parts subfolder has been disabled
+        // no real need to disable this due to directory traversal in _tplFindFile(), but
+        // excluding the Parts folder will remove one traversal and hence give a very slight
+        // performance increase.
+        if (tplGet('IN_PARTS_SUBDIR') === FALSE) {
+            // leave out the Parts subfolder from path
+            $findfile = _makePath(tplGet('themePath'), tplGet('theme'), $type) . $file;
+        } else {
+            // include Parts subfolder in path
+            $findfile = _makePath(tplGet('themePath'), tplGet('theme'), $type, tplGet('parts')) . $file;
+        }
 
-        $findfile = _makePath(tplGet('themePath'), tplGet('theme'), $type, tplGet('parts')) . $file;
-
-        _tplDebug('FINDFILE: '.$findfile);
+        _tplDebug('GET THEME FILE: '.$findfile);
 
         return _tplFindFile($findfile);
     }
@@ -1065,6 +1038,8 @@ if (!function_exists('_tplSetDefaults'))
 
         if ('' == tplGet('parts'))
                 tplSet('parts', 'hAts_default');
+
+        _tplDebug('hATS DEFAULTS SET!');
     }
 }
 

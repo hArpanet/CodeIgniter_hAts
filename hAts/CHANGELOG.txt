@@ -7,24 +7,45 @@ Key: + = something added
 ==================================
 
 --------------------
-v2.0.0 - 25-Feb-2014
+v2.0.0 - 28-Feb-2014
 --------------------
+: Major structural change plus many core function changes plus parameter order changes
+: makes this update worthy of the v2 significant change designation.
+
 hats_helper.php
+: IN_PARTS_SUBDIR is assumed TRUE unless tplSet to FALSE by user
 + _makePath() private method to help build paths
++ error checking for missing part files
++ 'STOP_ON_ERROR' reserved variable added
++ _tplSetDefaults() added as private function (called from tplPartsPath)
+- tplSetTemplate() removed
+- hAts_DEBUG definition removed - debugging is off by default unless set by user
+- removed IN_PARTS_SUBDIR parameter from all functions - each function now checks using tplGet
 ~ Changed default theme & parts folder locations
 ~ Changed calls from _addSlash() to _makePath() throughout
 ~ fixed some path bugs
 ~ Some code standardisation and prettying
 ~ Changed all " to ' throughout where relevant
 ~ _tplFindFile() update to stop looking when root path found
+~ tplStylesheet()       removed $in_parts_subdir parameter
+~ tplJavascriptParsed() removed $in_parts_subdir parameter
+~ tplImage()            removed $in_parts_subdir parameter
+~ tplGetThemeFile()     removed $in_parts_subdir parameter
+~ tplStylesheets()      removed in_parts processing
+~ tplAddStylesheet()    removed $in_parts_subdir parameter
+~ tplJavascript()       removed $in_parts_subdir parameter
+~ tplJavascripts()      removed in_parts processing
+~ tplADdJavascript()    removed $in_parts_subdir parameter
+
 
 STRUCTURAL CHANGES:
+
 Controllers folder:
 + /application/controllers folder added
-+ added new controller (hats_controller.php) as an example, showing example page content
++ added new controller (hats_example.php) as an example, showing example page content
 
 Core folder:
-- /application/core removed (as well as MY_Controller.php within it)
+- /application/core removed (as well as hAts_MY_Controller.php within it)
 
 hAts root folder:
 + /hAts - new root folder to contain all hATS themes and part files
@@ -40,6 +61,7 @@ Views:
 
 Parts file changes:
 + hAts/parts/hAts_default/test/testpart.phtml added as an example (used in new hats_controller)
++ hAts/parts/hAts_default/test/subpart.phtml added (called from testpart.phtml)
 : plus various html updates to all default parts
 : plus file relocation/renames of all default parts...
 ~ parts/default/head.php         -> parts/hAts_default/head.phtml

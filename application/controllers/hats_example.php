@@ -111,6 +111,7 @@ class Hats_example extends CI_Controller {
          * the one below, but as an example we will just do it inline here...
          */
         // flag some responses (note: the hAts default Parts already contains a call to tplResponse_message() in body_open.phtml)
+        $this->flagResponse(true, ':-) THIS SUCCESS MESSAGE is from the flagResponse() method.');
         tplAdd('success', ':-) THIS IS A SUCCESS MESSAGE - click me to go away, or I\'ll auto fade if jQuery exists!');
         tplAdd('fail',    ':-( THIS IS A FAIL MESSAGE    - click me to go away, or I\'ll auto fade if jQuery exists!');
 
@@ -129,11 +130,16 @@ class Hats_example extends CI_Controller {
      * @param   bool    $result     TRUE = log 'success' response; FALSE = 'fail' response;
      * @param   string  $msg        Message text to display to user. If not specified, default text
      *                              from config file will be used.
+     * @param   bool    $break      Should a <br/> tag be added? (default=yes)
      *
      * @uses    hats_helper.php     - must already be loaded by controller
      */
-    public function flagResponse($result, $msg='')
+    public function flagResponse($result, $msg='', $break=true)
     {
+        if ($break) {
+            $msg = $msg.'<br/>';
+        }
+
         if ( $result ) {
             // if no message supplied, get one from CI Config if present
             $msg = ($msg !='') ? $msg : $this->config->item('SUCCESS_MSG');

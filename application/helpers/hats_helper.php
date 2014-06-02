@@ -8,9 +8,7 @@
  * @copyright   Copyright (c) 2012+, hArpanet
  * @license     http://codeigniter.com/user_guide/license.html
  * @link        http://harpanet.com
- * @version     Version 2.0.0 / 140228
- *
- * @requires    GLOBAL PROPERTY ARRAY $hAtsData[] to be present and set in your controller (see _checkTplVar below)
+ * @version     Version 2.1.0 / 140529
  *
  * @method      tplPartsPath    ( $file, $in_theme, $use_baseurl )      - v1.7.0 modified v2.0.0 fixed path bugs
  * @method      tplGetPath      ( $file, $in_theme, $use_baseurl )      - v1.5.0 removed in v1.7.0
@@ -35,6 +33,7 @@
  * @method      _tplGetThemeFile( $type, $file )                        - v1.2.0 modified v2.0.0 in_parts_subdir changes
  * @method      _addSlash       ( $string, $trim )                      - v1.7.0 added
  * @method      _makePath       ( <multiple params> )                   - v2.0.0 added
+ * @method      _addFileExt     ( $file, $ext, $force )                 - v1.7.0 added modified v2.0.1 defaults $ext to 'hAts_partstype'
  * @method      _tplFindFile    ( $file )                               - v1.7.0 added
  * @method      _tplSetDefaults ( )                                     - v1.5.0 added v2.0.0 renamed from tplSetTemplate()
  *
@@ -51,60 +50,6 @@
  * @note            ['fail']        - if you use tplResponse_message(), it assumes anything in the 'fail' var is the message to show
  */
 
-/*
- * GENERAL FUNCTIONS
- * =================
- */
-
-define('TPLVAR', 'hATS');    // the array key (in $hAtsData) used to store all hATS values
-
-/*
- * INTERNAL FUNCTIONS - used by other hATS functions
- * ==================
- */
-
-if (!function_exists('_tplDebug'))
-{
-    function _tplDebug( $msg='' )
-    /**
-     * If debugging enabled, output hATS debug messages
-     * @version 28-Feb-2014
-     *
-     * @return  bool    current setting     (True = enabled, False = disabled)
-     */
-    {
-        // get debugging state
-        $ENABLED = (tplGet('debug') === TRUE) ? TRUE : FALSE;
-
-        if ( $ENABLED && $msg ) {
-            echo "<div style='color:grey; clear:both; font-size:10px;'>{$msg}</div>";
-        }
-
-        return $ENABLED;
-    }
-}
-
-if (!function_exists('_checkTplVar'))
-{
-    /**
-     * Check if the tplvar array element exists and create it if it doesn't
-     * @version 11-Sept-2012
-     *
-     * @return          $this
-     */
-    function _checkTplVar()
-    {
-        $ci=& get_instance();
-
-        if ( !isset($ci->hAtsData) ) exit('ERROR: GLOBAL PROPERTY ARRAY $hAtsData[] DOES NOT EXIST IN YOUR CONTROLLER. hATS CANNOT CONTINUE. Add: var $hAtsData = array(); to fix.');
-
-        if ( !isset($ci->hAtsData[TPLVAR]) ) {
-            $ci->hAtsData[TPLVAR] = array();
-        }
-
-        //      return $this;
-    }
-}
 
 /*
  * PUBLIC FUNCTIONS - available to Controllers, Views, etc.
@@ -161,7 +106,7 @@ if (!function_exists('tplStylesheet'))
 {
     /**
      * Return a fully qualified HTML element for the specified stylesheet file (in the current theme)
-     * @version 29-Oct-2013
+     * @version 06-May-2014
      *
      * @param   string  $file               path/name of stylesheet - without (or with .css) (eg. style or style.css)
      * @param   bool    $in_theme           Is stylesheet located in theme folder? Yes=True, No=False
@@ -171,18 +116,18 @@ if (!function_exists('tplStylesheet'))
      */
     function tplStylesheet( $file, $in_theme=true )
     {
-        if (!empty($file))
-        {
+        if (!empty($file)) {
+
             // add .css to filename if not already present
             $file = _addFileExt($file, 'css');
 
-            if ($in_theme)
-            {
+            if ($in_theme) {
+
                 // get location of file from theme
                 $retval = "<link rel='stylesheet' href='" ._tplGetThemeFile('css', $file). "' type='text/css'>\n";
-            }
-            else
-            {
+
+            } else {
+
                 // not using theme so assume literal file path specified
                 $retval = "<link rel='stylesheet' href='{$file}' type='text/css'>\n";
             }
@@ -197,7 +142,8 @@ if (!function_exists('tplStylesheets'))
 {
     /**
      * Output all stylesheets stacked up with tplAddStylesheet
-     * @version 09-Oct-2013
+     *
+     * @version 27-Apr-2014
      *
      * @return  valid HTML stylesheet statement(s)
      */
@@ -205,33 +151,35 @@ if (!function_exists('tplStylesheets'))
     {
         _checkTplVar();
 
-        $ci=& get_instance();
+        $ci = & get_instance();
+
+        $hAtsData = $ci->config->item('hAtsData');
 
         $retval = '';
 
         // process css files if specified
-        if ( array_key_exists('css', $ci->hAtsData[TPLVAR]) ) {
+        if ( is_array($hAtsData) AND array_key_exists('css', $hAtsData) ) {
 
-            $parts = $ci->hAtsData[TPLVAR]['css'];
+            $files = $hAtsData['css'];
 
-            if ( is_array($parts) ) {
-                foreach( $parts as $css_data ) {
+            if ( is_array($files) ) {
 
-                    $css      = $css_data['css'];
-                    $in_theme = $css_data['intheme'];
+                foreach( $files as $css_file ) {
+
+                    $css      = (array_key_exists('css',     $css_file)) ? $css_file['css']     : false;
+                    $in_theme = (array_key_exists('intheme', $css_file)) ? $css_file['intheme'] : false;
 
                     _tplDebug( 'STYLESHEETS: CSS REQUESTED: '.$css );
 
-                    $retval .= tplStylesheet( $css, $in_theme );
+                    if ($css) {
+                        $retval .= tplStylesheet( $css, $in_theme );
+                    }
                 }
 
             } else {
 
                 // this should never happen as all parts are added as array entities, but just in case!...
-
-                _tplDebug( 'STYLESHEETS: ONLY ONE STYLESHEET FOUND: '.$ci->hAtsData[TPLVAR]['css'][0] );
-
-                $retval = tplStylesheet( $ci->hAtsData[TPLVAR]['css'][0] );
+                _tplDebug( 'STYLESHEETS: NO STYLESHEETS FOUND!' );
             }
         }
 
@@ -245,21 +193,46 @@ if (!function_exists('tplAddStylesheet'))
     /**
      * Add a stylesheet to the stack - for output with tplStylesheets()
      *
-     * @version 25-Feb-2014
+     * @version 08-May-2014
      *
-     * @param   string  $css    name of stylesheet to load - excluding (or including .css file extension)
+     * @param   string  $file   name of stylesheet to load - excluding (or including .css file extension)
      *                          the path is automatically located in /theme/[theme name]/css/[css name]/
      * @param   string  $in_theme        Flag indicating if this css file exists within the current theme
      *
      * @return  void
      */
-    function tplAddStylesheet( $css, $in_theme=true )
+    function tplAddStylesheet( $file, $in_theme=true )
     {
         _checkTplVar();
 
-        $ci=& get_instance();
+        $ci = & get_instance();
 
-        $ci->hAtsData[TPLVAR]['css'][] = array('css'=>$css, 'intheme'=>$in_theme);
+        $hAtsData = $ci->config->item('hAtsData');
+
+
+        if (is_array($hAtsData) AND array_key_exists('css', $hAtsData)) {
+
+            // get existing css
+            $css = $hAtsData['css'];
+
+            // make sure $css is an array - which it should *always* be
+            if ( is_array($css) ) {
+                $css[] = array('css'=>$file, 'intheme'=>$in_theme);
+
+            } else {
+                // add new css element
+                $css = array(array('css'=>$file, 'intheme'=>$in_theme));
+            }
+
+        } else {
+
+            // no existing css elements, so create one
+            $css = array(array('css'=>$file, 'intheme'=>$in_theme));
+        }
+
+        $hAtsData['css'] = $css;
+
+        $ci->config->set_item('hAtsData', $hAtsData);
     }
 }
 
@@ -274,7 +247,7 @@ if (!function_exists('tplJavascript'))
 {
     /**
      * Return a fully qualified HTML element for a javascript file in the current theme
-     * @version 25-Feb-2014
+     * @version 01-May-2014
      *
      * @param   string  file                path/name of javascript (eg. jQuery.js or just jQuery)
      * @param   bool    $in_theme           Is javascript located in theme folder? Yes=True, No=False
@@ -283,26 +256,24 @@ if (!function_exists('tplJavascript'))
      */
     function tplJavascript( $file, $in_theme=true )
     {
-        if (!empty($file))
-        {
+        if (!empty($file)) {
+
             // add .js to filename if not already present
             $file = _addFileExt($file, 'js');
 
             _tplDebug('JS FILENAME:', $file);
 
-            if ($in_theme)
-            {
+            if ($in_theme) {
                 _tplDebug('JS FROM THEME!');
 
                 // get location of file from theme
-                $retval = "<script type='text/javascript' src='" ._tplGetThemeFile('js', $file, FALSE). "'></script>";
-            }
-            else
-            {
+                $retval = "<script type='text/javascript' src='" ._tplGetThemeFile('js', $file, FALSE). "'></script>\n";
+
+            } else {
                 _tplDebug('JS LITERAL PATH SUPPLIED!');
 
                 // not using theme so assume literal file path specified
-                $retval = "<script type='text/javascript' src='{$file}'></script>";
+                $retval = "<script type='text/javascript' src='{$file}'></script>\n";
             }
 
             return $retval;
@@ -316,8 +287,7 @@ if (!function_exists('tplJavascriptParsed'))
     /**
      * Load a theme Javascript file into memory, parse it for PHP, then return it as string.
      * Returned file content will automatically be wrapped in <script> tags.
-     * @author  hArpanet.com
-     * @version 16-Jan-2013
+     * @version 01-May-2014
      *
      * @param   string  file                path/name of javascript (eg. jQuery.js or just jQuery)
      * @param   bool    $in_theme           Is javascript located in theme folder?
@@ -327,27 +297,28 @@ if (!function_exists('tplJavascriptParsed'))
     function tplJavascriptParsed( $file, $in_theme=true )
     {
         // no point doing anything if filename not specified
-        if ( ! empty($file))
-        {
+        if ( ! empty($file)) {
+
             // add .js to filename if not already present
             $file = _addFileExt($file, 'js');
 
             _tplDebug( 'JAVASCRIPT PARSED: '.$file );
 
-            if ($in_theme)
-            {
+            if ($in_theme) {
                 // get location of file from theme
                 $file = _tplGetThemeFile('js', $file);
-                $file = realpath($_SERVER['DOCUMENT_ROOT']) .$file;
+                $file = _makepath(realpath(FCPATH)).$file;
             }
 
             _tplDebug( 'JAVASCRIPT PARSED REAL PATH: '.$file );
 
+            _tplDebug( 'JAVASCRIPT PARSED FILE EXISTS: '.file_exists($file) );
+
             // load the file contents
-            $jsfile = file_get_contents($file);
+            $jsfile = (file_exists($file)) ? file_get_contents($file) : '';
 
             // wrap in script tags
-            $retval = "<script type='text/javascript'>{$jsfile}</script>";
+            $retval = "<script type='text/javascript'>{$jsfile}</script>\n";
 
             // run eval to parse any PHP instructions
             $retval = eval('?>'.$retval);
@@ -362,7 +333,17 @@ if (!function_exists('tplJavascripts'))
 {
     /**
      * Output all javascripts stacked up with tplAddJavascript
-     * @version 09-Oct-2013
+     *
+     * NOTE:: THIS FUNCTION IS NOT INTENDED TO BE CALLED FROM WITHIN THE COTROLLER.
+     *        IT SHOULD BE PLACED DIRECTLY WITHIN A 'part' FILE. SEE EXAMPLE!
+     *
+     *        THIS IS **ESPECIALLY** IMPORTANT IF USING PARSED JAVASCRIPT FILES
+     *        AS THE FILES WILL BE EVAL'D WITHIN THE CONTEXT FROM WHICH IT IS CALLED.
+     *
+     * @example
+     *             <?php echo tplJavascripts(); ?>
+     *
+     * @version 02-May-2014
      *
      * @return  valid HTML javascript statement(s)
      */
@@ -370,44 +351,47 @@ if (!function_exists('tplJavascripts'))
     {
         _checkTplVar();
 
-        $ci=& get_instance();
+        $ci = & get_instance();
+
+        $hAtsData = $ci->config->item('hAtsData');
 
         $retval = '';
 
-        if ( array_key_exists('js', $ci->hAtsData[TPLVAR]) ) {
-            $parts = $ci->hAtsData[TPLVAR]['js'];
+        if ( is_array($hAtsData) AND array_key_exists('js', $hAtsData) ) {
 
-            if ( is_array($parts) ) {
-                foreach( $parts as $js_data ) {
+            $files = $hAtsData['js'];
 
-                    $js       = $js_data['js'];
-                    $in_theme = $js_data['intheme'];
+            if ( is_array($files) ) {
 
-                    // check if js name contains 'parse' flag '#'
-                    if ( $js[0] == '#' )
-                    {
-                        _tplDebug( "JAVASCRIPTS: PARSED JS REQUIRED: {$js}" );
+                foreach( $files as $js_file ) {
 
-                        // this javascript needs to be parsed for PHP tags
-                        $retval .= tplJavascriptParsed( substr($js, 1), $in_theme );
+                    $js       = (array_key_exists('js',      $js_file)) ? $js_file['js']      : false;
+                    $in_theme = (array_key_exists('intheme', $js_file)) ? $js_file['intheme'] : false;
+
+                    if ($js) {
+                        // check if js name contains 'parse' flag '#'
+                        if ( $js[0] == '#' ) {
+
+                            _tplDebug( "JAVASCRIPTS: PARSED JS REQUIRED: {$js}" );
+
+                            // this javascript needs to be parsed for PHP tags
+                            $retval .= tplJavascriptParsed( substr($js, 1), $in_theme );
+
+                        } else {
+
+                            _tplDebug( "JAVASCRIPTS: NORMAL JS REQUIRED: {$js}" );
+
+                            $retval .= tplJavascript( $js, $in_theme );
+                        }
+
+                        _tplDebug("JAVASCRIPTS: JS RETURNED: {$retval}");
                     }
-                    else
-                    {
-                        _tplDebug( "JAVASCRIPTS: NORMAL JS REQUIRED: {$js}" );
-
-                        $retval .= tplJavascript( $js, $in_theme );
-                    }
-
-                    _tplDebug("JAVASCRIPTS: JS RETURNED: {$retval}");
                 }
 
-            }else{
+            } else {
 
                 // this should never happen as all parts are added as array entities, but just in case!...
-
-                _tplDebug( 'JAVASCRIPTS: ONLY ONE JS FILE FOUND: '.$ci->hAtsData[TPLVAR]['js'][0] );
-
-                $retval = tplJavascript( $ci->hAtsData[TPLVAR]['js'][0] );
+                _tplDebug( 'STYLESHEETS: NO JAVASCRIPTS FOUND!' );
             }
         }
 
@@ -420,7 +404,8 @@ if (!function_exists('tplAddJavascript'))
 {
     /**
      * Add a javascript file to the stack - for output with tplJavascripts()
-     * @version 11-Sept-2012
+     *
+     * @version 01-May-2014
      *
      * NOTE: To add javascript from non theme locations (e.g. /assets/js)
      *       ensure $in_theme is passed as FALSE and put full filepath into $file.
@@ -441,12 +426,36 @@ if (!function_exists('tplAddJavascript'))
     {
         _checkTplVar();
 
-        $ci=& get_instance();
+        $ci = & get_instance();
 
-        $ci->hAtsData[TPLVAR]['js'][] = array('js'=>$jfile, 'intheme'=>$in_theme);
+        $hAtsData = $ci->config->item('hAtsData');
+
+
+        if (is_array($hAtsData) AND array_key_exists('js', $hAtsData)) {
+
+            // get existing js
+            $js = $hAtsData['js'];
+
+            // make sure $js is an array - which it should *always* be
+            if ( is_array($js) ) {
+                $js[] = array('js'=>$file, 'intheme'=>$in_theme);
+
+            } else {
+                // add new js element
+                $js = array(array('js'=>$file, 'intheme'=>$in_theme));
+            }
+
+        } else {
+
+            // no existing js elements, so create one
+            $js = array(array('js'=>$file, 'intheme'=>$in_theme));
+        }
+
+        $hAtsData['js'] = $js;
+
+        $ci->config->set_item('hAtsData', $hAtsData);
     }
 }
-
 
 
 
@@ -471,14 +480,13 @@ if (!function_exists('tplImage'))
         // TODO:    Possibly need a 'tplImages()' function to return multiple HTML include lines for multiple image files
         //          as per tplGetParts()
 
-        if ($in_theme)
-        {
-            // get location of file from theme
+        if ($in_theme) {
 
+            // get location of file from theme
             $retval = _tplGetThemeFile('img', $file);
-        }
-        else
-        {
+
+        } else {
+
             // not using theme so assume literal file path specified
             $retval = $file;
         }
@@ -498,7 +506,8 @@ if (!function_exists('tplSet'))
 {
     /**
      * SET VALUE OF hATS VARIABLE - overwrite existing value
-     * @version 14-Sept-2012
+     *
+     * @version 27-Apr-2014
      *
      * @param   string  $var    hATS variable name
      *                          NOTE: As of @version 1.5.7...
@@ -510,80 +519,98 @@ if (!function_exists('tplSet'))
      * @param   string  $elem   if $var is an array, $elem allows us to set a value
      *                          within that array by specifying its key.
      *                          $var MUST already exist and be an array.
-     * @return          $this
      */
-    function tplSet( $var='clipboard', $val='', $elem='' )
+    function tplSet( $var, $val='', $elem='' )
     {
         _checkTplVar();
 
-        $ci=& get_instance();
+        $ci = & get_instance();
 
-        // hAtsData should always be an array, but check anyway to prevent error
-        if ( is_array($ci->hAtsData) )
-        {
-            // is $var an array?
-            if (is_array($var))
-            {
-                // array sent, process elements
-                $var_array = $var;
-                foreach($var_array as $var => $val)
-                {
-                    // NOTE: Not able to set array elements when values passed as an array!
-                    // So here, we are just setting the $var with the $val...
-                    $ci->hAtsData[TPLVAR][$var] = $val;
-                }
+        $hAtsData = $ci->config->item('hAtsData');
+
+
+        // is $var an array?
+        if (is_array($var)) {
+
+            // array sent, process elements as individual variables
+            foreach($var as $newvar => $val) {
+
+                // NOTE: Not able to set array elements when values passed as an array!
+                // So here, we are just setting the $var with the $val...
+                $hAtsData[$newvar] = $val;
             }
-            else
-            {
-                // plain parameters sent (not an array)
 
-                // are we setting an array element?
-                if ( empty($elem) )
-                {
-                    // no, just set the $var
-                    $ci->hAtsData[TPLVAR][$var] = $val;
-                }
-                else
-                {
-                    // yes, setting an array $elem, check that $var exists and that it is an array - if not create it
-                    if ( array_key_exists($var,$ci->hAtsData[TPLVAR]) === FALSE )
-                    {
-                        $ci->hAtsData[TPLVAR][$var] = array();
-                    }
+        } else {
 
-                    // now set the value
-                    $ci->hAtsData[TPLVAR][$var][$elem] = $val;
+            // plain parameters sent (not an array)
+
+            // are we setting an array element?
+            if (empty($elem)) {
+
+                // no, just set the $var
+                $hAtsData[$var] = $val;
+
+            } else {
+
+                // yes, setting an array $elem, check that $var exists and that it is an array - if not create it
+                if ( ! array_key_exists($var, $hAtsData) ) {
+
+                    $hAtsData[$var] = array();
                 }
+
+                // now set the value
+                $hAtsData[$var][$elem] = $val;
             }
         }
 
-        //      return $this;
+        $ci->config->set_item('hAtsData', $hAtsData);
     }
 }
 
 if (!function_exists('tplAdd'))
 {
     /**
-     * Add another value to named hATS variable (value will be string appended to existing value)
-     * @version 14-Jun-2012
+     * Add another value to named hATS variable
+     *
+     * Value will be string appended to existing string value
+     * Value will be added as new indexed element if existing value is an array
+     *
+     * @version 27-Apr-2014
      *
      * @param   string  $var    hATS variable name
      * @param   mixed   $val    value to set
      * @return          $this
      */
-    function tplAdd( $var = 'clipboard', $val = '' )
+    function tplAdd( $var, $val='' )
     {
         _checkTplVar();
 
-        $ci=& get_instance();
+        $ci = & get_instance();
 
-        if ( array_key_exists($var, $ci->hAtsData[TPLVAR]) ) {
-            $ci->hAtsData[TPLVAR][$var] .= $val;
-        }else{
+        $hAtsData = $ci->config->item('hAtsData');
+
+
+        // check if variable already exists
+        if ( array_key_exists($var, $hAtsData) ) {
+
+            if ( is_array($hAtsData[$var]) ) {
+
+                // existing variable is an array so add new element
+                $hAtsData[$var][] = $val;
+
+            } else {
+
+                // append to existing value
+                $hAtsData[$var] .= $val;
+            }
+
+            $ci->config->set_item('hAtsData', $hAtsData);
+
+        } else {
+
+            // named variable doesn't exist, just set it
             tplSet($var, $val);
         }
-
-        //      return $this;
     }
 }
 
@@ -591,7 +618,8 @@ if (!function_exists('tplGet'))
 {
     /**
      * GET hATS VARIABLE VALUE
-     * @version 14-Jun-2012
+     *
+     * @version 27-Apr-2014
      *
      * @param   string      $var    name of variable to retrieve
      * @param   string      $elem   if $var contains an array, this optional parameter can
@@ -600,36 +628,38 @@ if (!function_exists('tplGet'))
      *                              out the element later.
      * @return  string              Value of $var or blank string if not found
      */
-    function tplGet( $var = 'clipboard', $elem='' )
+    function tplGet( $var, $elem='' )
     {
         _checkTplVar();
 
-        $CI =& get_instance();
+        $ci = & get_instance();
+
+        $hAtsData = $ci->config->item('hAtsData');
 
         // hAtsData should always be an array, but check anyway to prevent error
-        if ( is_array($CI->hAtsData) )
-        {
+        if ( is_array($hAtsData) ) {
+
             // check if requested var exists
-            if ( array_key_exists($var, $CI->hAtsData[TPLVAR]) ) {
+            if ( array_key_exists($var, $hAtsData) ) {
 
                 // if we are requesting an array element, check that the var is an array
-                if ( $elem != '' AND is_array($CI->hAtsData[TPLVAR][$var]) )
-                {
+                if ( ! empty($elem) ) {
+
                     // check if array element $elem exists
-                    if ( array_key_exists($elem, $CI->hAtsData[TPLVAR][$var]) )
+                    if ( is_array($hAtsData[$var]) AND array_key_exists($elem, $hAtsData[$var]) )
                     {
-                        return $CI->hAtsData[TPLVAR][$var][$elem];
+                        return $hAtsData[$var][$elem];
                     }
 
-                }else{
+                } else {
                     // not requesting array element $elem, so just return $var
-                    return $CI->hAtsData[TPLVAR][$var];
+                    return $hAtsData[$var];
                 }
-            }
-            elseif ($var == '__ALL__')
-            {
+
+            } elseif ($var == '__ALL__') {
+
                 // return entire array - only of use for debugging
-                return $CI->hAtsData;
+                return $hAtsData;
             }
         }
 
@@ -643,6 +673,7 @@ if (!function_exists('tplGetOr'))
     /**
      * GET hATS VARIABLE VALUE OR RETURN SPECIFIED VALUE IF BLANK
      * NOTE: YOU CANNOT GET AN ARRAY VALUE USING tplGetOr
+     *
      * @version 18-Dec-2012
      *
      * @param   string      $var    name of variable to retrieve
@@ -652,18 +683,18 @@ if (!function_exists('tplGetOr'))
      *                              out the element later.
      * @return  string              Value of $var or blank string if not found
      */
-    function tplGetOr( $var='clipboard', $or='' )
+    function tplGetOr( $var, $or='' )
     {
         $var = tplGet($var);
 
         if ($var == '')
-        {
             $var = $or;
-        }
 
         return $var;
     }
 }
+
+
 
 /*
  * PARTS HANDLING
@@ -693,16 +724,20 @@ if (!function_exists('tplAddPart'))
 
         _checkTplVar();
 
-        $ci=& get_instance();
+        $ci = & get_instance();
+
+        $hAtsData = $ci->config->item('hAtsData');
 
         if (is_null($data)) {
             // just a part name
-            $ci->hAtsData[TPLVAR]['viewPart'][] = $part;
+            $hAtsData['viewPart'][] = $part;
 
         } else {
             // if data specified...
-            $ci->hAtsData[TPLVAR]['viewPart'][] = array($part, $data);
+            $hAtsData['viewPart'][] = array($part, $data);
         }
+
+        $ci->config->set_item('hAtsData', $hAtsData);
     }
 }
 
@@ -728,8 +763,11 @@ if (!function_exists('tplGetPart'))
         $part = tplPartsPath($part);
 
         if (file_exists($part) OR !empty(tplGet('STOP_ON_ERROR'))) {
+
             require $part;
+
         } else {
+
             echo "<div class='response_fail'>UNABLE TO FIND PART: {$part}</div>";
         }
     }
@@ -762,7 +800,8 @@ if (!function_exists('tplGetParts'))
 {
     /**
      * Get all view parts stacked for output
-     * @version 07-Oct-2013
+     *
+     * @version 28-Apr-2014
      *
      * @return  $this - No output from this function as parts are 'included' in the tplGetPart function
      */
@@ -770,11 +809,15 @@ if (!function_exists('tplGetParts'))
     {
         _checkTplVar();
 
-        $ci   =& get_instance();
+        $ci   = & get_instance();
+
+        $hAtsData = $ci->config->item('hAtsData');
+
         $data = '';
 
-        if ( array_key_exists('viewPart', $ci->hAtsData[TPLVAR]) ) {
-            $parts = $ci->hAtsData[TPLVAR]['viewPart'];
+
+        if ( array_key_exists('viewPart', $hAtsData) ) {
+            $parts = $hAtsData['viewPart'];
 
             if ( is_array($parts) ) {
                 foreach( $parts as $part ) {
@@ -800,10 +843,7 @@ if (!function_exists('tplGetParts'))
             } else {
 
                 // this should never happen as all parts are added as array entities, but just in case!...
-
-                _tplDebug( 'GETPARTS: ONLY ONE PART FOUND: '.$ci->hAtsData[TPLVAR]['viewPart'][0] );
-
-                tplGetPart( $ci->hAtsData[TPLVAR]['viewPart'][0] );
+                _tplDebug( 'GETPARTS: NO PARTS FOUND!' );
             }
         }
     }
@@ -814,8 +854,9 @@ if (!function_exists('tplResponse_message'))
 {
     /**
      * Display a response message wrapped in a div
-     * @author  hArpanet.com
-     * @version 02-May-2013 - added jQuery fadeout
+     *
+     * @version 28-Apr-2014 - use of config->item
+     *          02-May-2013 - added jQuery fadeout
      *          20-Jun-2012 - created
      *
      * @param   string  $name   array element name set using tplSet()
@@ -826,27 +867,30 @@ if (!function_exists('tplResponse_message'))
     {
         _checkTplVar();
 
-        $ci=& get_instance();
+        $ci = & get_instance();
 
-        if ( $name != '' && array_key_exists($name, $ci->hAtsData[TPLVAR]) )
+        $hAtsData = $ci->config->item('hAtsData');
+
+
+        if ( $name != '' && array_key_exists($name, $hAtsData) )
         {
             $css        = ( $css == '' ) ? $name : $css;
-            $response   = $ci->hAtsData[TPLVAR][$name];
+            $response   = $hAtsData[$name];
 
             echo "<div class='response_{$css}'>{$response}</div>";
         }
 
 
-        if ( array_key_exists('success', $ci->hAtsData[TPLVAR]) )
+        if ( array_key_exists('success', $hAtsData) )
         {
-            $success = $ci->hAtsData[TPLVAR]['success'];
+            $success = $hAtsData['success'];
 
             echo "<div style='cursor:pointer;' class='response_success' onclick=\"javascript:this.style.display='none';\">{$success}</div>";
         }
 
-        if ( array_key_exists('fail', $ci->hAtsData[TPLVAR]) )
+        if ( array_key_exists('fail', $hAtsData) )
         {
-            $fail = $ci->hAtsData[TPLVAR]['fail'];
+            $fail = $hAtsData['fail'];
 
             echo "<div style='cursor:pointer;' class='response_fail' onclick=\"javascript:this.style.display='none';\">{$fail}</div>";
         }
@@ -864,8 +908,46 @@ if (!function_exists('tplResponse_message'))
 
 
 /*
- * Some 'private' helpers used by functions above
+ * INTERNAL FUNCTIONS - used by other hATS functions
+ * ==================
  */
+
+if (!function_exists('_tplDebug'))
+{
+    function _tplDebug( $msg='' )
+    /**
+     * If debugging enabled, output hATS debug messages
+     * @version 28-Feb-2014
+     *
+     * @return  bool    current setting     (True = enabled, False = disabled)
+     */
+    {
+        if ( tplGet('debug') && $msg ) {
+            echo "<div style='color:grey; clear:both; font-size:10px;'>{$msg}</div>";
+        }
+
+        return tplGetOr('debug', false);
+    }
+}
+
+
+if (!function_exists('_checkTplVar'))
+{
+    /**
+     * Check if the tplvar array element exists and create it if it doesn't
+     *
+     * @version 27-Apr-2014
+     */
+    function _checkTplVar()
+    {
+        $ci = & get_instance();
+
+        if ( ! is_array($ci->config->item('hAtsData'))) {
+
+            $ci->config->set_item('hAtsData', array());
+        }
+    }
+}
 
 
 if (!function_exists('_tplGetThemeFile'))
@@ -881,11 +963,14 @@ if (!function_exists('_tplGetThemeFile'))
      */
     function _tplGetThemeFile( $type='', $file='' )
     {
+        // if paths not already set, set default ones
+        _tplSetDefaults();
+
         // Check if searching within Parts subfolder has been disabled
         // no real need to disable this due to directory traversal in _tplFindFile(), but
         // excluding the Parts folder will remove one traversal and hence give a very slight
         // performance increase.
-        if (tplGet('IN_PARTS_SUBDIR') === FALSE) {
+        if (tplGet('IN_PARTS_SUBDIR') === false) {
             // leave out the Parts subfolder from path
             $findfile = _makePath(tplGet('themePath'), tplGet('theme'), $type) . $file;
         } else {
@@ -915,12 +1000,10 @@ if (!function_exists('_addSlash'))
         if ($trim)
             $string = trim($string);
 
-        if ('/' != substr($string, -1))
-            $string .= '/';
-
-        return $string;
+        return rtrim($string, '/').'/';
     }
 }
+
 
 if (!function_exists('_makePath'))
 {
@@ -946,27 +1029,33 @@ if (!function_exists('_makePath'))
     }
 }
 
+
 if (!function_exists('_addFileExt'))
 {
     /**
      * Append file extension to filename
-     * @version 07-Oct-2013
+     * @version 07-Mar-2014
      *
      * @param string $file Original file path/name
      * @param string $ext  File extension to be added. Defaults to .phtml
      *
      * @return  string Filename with file extension
      */
-    function _addFileExt( $file, $ext='phtml', $force = false ) {
+    function _addFileExt( $file, $ext='', $force = false ) {
         $file = trim($file);
 
+        // prepare the correct file extension
+        if (empty($ext)) {
+            $ext = tplGetOr('hAts_partstype', 'phtml');
+        }
+        $ext = trim($ext, '.');
+
         // add extension if one not present
-        if ('' == pathinfo($file, PATHINFO_EXTENSION) OR $force)
-        {
-            return $file.'.'.$ext;
+        if ('' == pathinfo($file, PATHINFO_EXTENSION) OR $force) {
+
+            $file .= '.'.$ext;
         }
 
-        // already has a file extension, so just return original name
         return $file;
     }
 }
@@ -1042,5 +1131,6 @@ if (!function_exists('_tplSetDefaults'))
         _tplDebug('hATS DEFAULTS SET!');
     }
 }
+
 
 /* End of file: hats_helper.php */

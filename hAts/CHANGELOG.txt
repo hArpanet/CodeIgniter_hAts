@@ -7,6 +7,32 @@ Key: + = something added
 ==================================
 
 --------------------
+v2.1.0 - 29-May-2014
+--------------------
+: Removed the need for the $hAtsData array declaration
+: Added basic method testing controller hats_tests.php and associated files
+
+hats_helper.php
+- Removed need for $hAtsData global array. Now uses CI Config vars to store hAts settings.
+~ tplSet() - variable name must now be set specifically - no longer defaults to 'clipboard'
+~ tplAdd() - variable name must now be set specifically - no longer defaults to 'clipboard'
+~ tplGet() - variable name must now be set specifically - no longer defaults to 'clipboard'
+~ tplGetOr() - variable name must now be set specifically - no longer defaults to 'clipboard'
+
+STRUCTURAL CHANGES:
+
+Controllers folder:
++ Added new controller for method testing (hats_tests.php). Call http://website.url/hats_tests
+
+hAts Root Folder:
++ \hAts\parts\hAts_default\test - folder added to contain method test files
++ \hAts\parts\hAts_default\test\subpart.phtml - sub-part file for method tests
++ \hAts\parts\hAts_default\test\testpart.phtml - parts file for method tests
++ \hAts\theme\hAts_default\js\test_javascript.js - theme javascript for method tests
+
+
+
+--------------------
 v2.0.0 - 28-Feb-2014
 --------------------
 : Major structural change plus many core function changes plus parameter order changes

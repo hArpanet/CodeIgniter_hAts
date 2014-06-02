@@ -3,18 +3,13 @@
 /**
  * THIS IS JUST AN EXAMPLE CONTROLLER TO SHOW HOW
  * TO IMPLEMENT THE hArpanet Template System (hATS)
+ *
+ * For hAts v2.1.0+
+ *
+ * @version 140428
  */
 
 class Hats_example extends CI_Controller {
-
-    /*
-     * REQUIRED: $hAtsData global array is used by hArpanet Template System (hATS)
-     *           to pass all necessary variables/values into the Views and Parts
-     *
-     * NOTE: if you use MY_Controller in your project, move this declaration there.
-     */
-    public $hAtsData = array();
-
 
     public function __construct() {
         parent::__construct();
@@ -63,7 +58,6 @@ class Hats_example extends CI_Controller {
         // load hATS default layout (View file)
         $this->load->view('hats_default');
     }
-
 
 
 // ========================================================================

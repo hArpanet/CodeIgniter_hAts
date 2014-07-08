@@ -8,7 +8,7 @@
  * @copyright   Copyright (c) 2012+, hArpanet
  * @license     http://codeigniter.com/user_guide/license.html
  * @link        http://harpanet.com
- * @version     Version 2.1.0 / 140529
+ * @version     Version 2.1.1 / 140705
  *
  * @method      tplPartsPath    ( $file, $in_theme, $use_baseurl )      - v1.7.0 modified v2.0.0 fixed path bugs
  * @method      tplGetPath      ( $file, $in_theme, $use_baseurl )      - v1.5.0 removed in v1.7.0
@@ -121,14 +121,25 @@ if (!function_exists('tplStylesheet'))
             // add .css to filename if not already present
             $file = _addFileExt($file, 'css');
 
+            _tplDebug('CSS FILENAME:', $file);
+
+            // get website base url
+            $ci = & get_instance();
+            $base_url = _addSlash($ci->config->item('base_url'));
+
             if ($in_theme) {
 
                 // get location of file from theme
-                $retval = "<link rel='stylesheet' href='" ._tplGetThemeFile('css', $file). "' type='text/css'>\n";
+                $retval = "<link rel='stylesheet' href='{$base_url}" .ltrim(_tplGetThemeFile('css', $file),'/'). "' type='text/css'>\n";
 
             } else {
+                _tplDebug('CSS LITERAL PATH SUPPLIED!');
 
                 // not using theme so assume literal file path specified
+                // but add base_url if no protocol specified
+                if (substr($file, 0, 4) !== 'http')
+                    $file = $base_url.ltrim($file,'/');
+
                 $retval = "<link rel='stylesheet' href='{$file}' type='text/css'>\n";
             }
 
@@ -263,14 +274,23 @@ if (!function_exists('tplJavascript'))
 
             _tplDebug('JS FILENAME:', $file);
 
+            // get website base url
+            $ci = & get_instance();
+            $base_url = _addSlash($ci->config->item('base_url'));
+
             if ($in_theme) {
                 _tplDebug('JS FROM THEME!');
 
                 // get location of file from theme
-                $retval = "<script type='text/javascript' src='" ._tplGetThemeFile('js', $file, FALSE). "'></script>\n";
+                $retval = "<script type='text/javascript' src='{$base_url}" .ltrim(_tplGetThemeFile('js', $file),'/'). "'></script>\n";
 
             } else {
                 _tplDebug('JS LITERAL PATH SUPPLIED!');
+
+                // not using theme so assume literal file path specified
+                // but add base_url if no protocol specified
+                if (substr($file, 0, 4) !== 'http')
+                    $file = $base_url.ltrim($file,'/');
 
                 // not using theme so assume literal file path specified
                 $retval = "<script type='text/javascript' src='{$file}'></script>\n";
@@ -384,7 +404,7 @@ if (!function_exists('tplJavascripts'))
                             $retval .= tplJavascript( $js, $in_theme );
                         }
 
-                        _tplDebug("JAVASCRIPTS: JS RETURNED: {$retval}");
+                        _tplDebug("JAVASCRIPTS: JS RETURNED: ".htmlspecialchars($retval));
                     }
                 }
 
@@ -480,14 +500,22 @@ if (!function_exists('tplImage'))
         // TODO:    Possibly need a 'tplImages()' function to return multiple HTML include lines for multiple image files
         //          as per tplGetParts()
 
+        // get website base url
+        $ci = & get_instance();
+        $base_url = _addSlash($ci->config->item('base_url'));
+
         if ($in_theme) {
 
             // get location of file from theme
-            $retval = _tplGetThemeFile('img', $file);
+            $retval = $base_url.ltrim(_tplGetThemeFile('img', $file),'/');
 
         } else {
 
             // not using theme so assume literal file path specified
+            // but add base_url if no protocol specified
+            if (substr($file, 0, 4) !== 'http')
+                $file = $base_url.ltrim($file,'/');
+
             $retval = $file;
         }
 
@@ -966,6 +994,9 @@ if (!function_exists('_tplGetThemeFile'))
         // if paths not already set, set default ones
         _tplSetDefaults();
 
+        // trim leading slashes
+        $file = ltrim($file, '/');
+
         // Check if searching within Parts subfolder has been disabled
         // no real need to disable this due to directory traversal in _tplFindFile(), but
         // excluding the Parts folder will remove one traversal and hence give a very slight
@@ -1073,6 +1104,9 @@ if (!function_exists('_tplFindFile'))
      */
     function _tplFindFile($file) {
 
+        $found = false;
+        $original = $file;
+
         // SEARCH for specified file
         // we will only traverse back 50 parent folders maximum
 
@@ -1081,8 +1115,10 @@ if (!function_exists('_tplFindFile'))
             _tplDebug( 'LOOKING IN: '.$file );
 
             // quit if file found
-            if ( file_exists($file) )
+            if ( file_exists($file) ) {
+                $found = true;
                 break;
+            }
 
             // store current location
             $current = $file;
@@ -1095,7 +1131,12 @@ if (!function_exists('_tplFindFile'))
                 break;
         }
 
-        _tplDebug( 'FINDFILE FOUND: '.$file );
+        if ($found) {
+            _tplDebug( 'FINDFILE FOUND: '.$file );
+        } else {
+            $file = $original;
+            _tplDebug( 'FINDFILE NOT FOUND: '.$file );
+        }
 
         return $file;
     }

@@ -3,10 +3,6 @@
 /**
  * THIS IS JUST AN EXAMPLE CONTROLLER TO SHOW HOW
  * TO IMPLEMENT THE hArpanet Template System (hATS)
- *
- * For hAts v2.1.0+
- *
- * @version 140428
  */
 
 class Hats_example extends CI_Controller {
@@ -72,7 +68,7 @@ class Hats_example extends CI_Controller {
          * content at relevant places within them.
          */
         tplSet('metaTitle',    'My hATS Example Page');
-        tplSet('mainHeading',  'hATS v2.0.0 Example Page');
+        tplSet('mainHeading',  'hATS v2.1.1 Example Page');
         tplSet('logoSrc',      'harpanet_logo.png');
 
         // note that we are 'add'ing body content not 'set'ting it. Setting a variable

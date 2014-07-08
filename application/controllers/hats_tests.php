@@ -6,9 +6,7 @@
  * Run tests against hAts_helper functions for comparison against
  * expected results.
  *
- * For hAts v2.1.0+
- *
- * @version 140428
+ * @version 140605
  */
 
 class Hats_tests extends CI_Controller {
@@ -161,32 +159,43 @@ class Hats_tests extends CI_Controller {
 
     public function js() {
 
-        $c = $this->config;
+        $c  = $this->config;
+        $bu = rtrim($c->item('base_url'),'/');
 
         echo "<h1>hAts_helper JAVASCRIPT TESTS</h1>";
         echo "<hr/>";
 
 
-        tplAddJavascript('/js/testfile');
+        tplAddJavascript('testfile');
 
-            test(   "tplAddJavascript('/js/testfile');",
+            test(   "tplAddJavascript('testfile');",
                     $c->item('js', 'hAtsData'),
-                    array(array('js'=>'/js/testfile', 'intheme'=>true))
+                    array(array('js'=>'testfile', 'intheme'=>true)),
+                    "NOTE: Adding javascript from within theme. No file extension specified."
                     );
 
-        tplAddJavascript('/js/anotherfile.js');
+        tplAddJavascript('/includes/js/anotherfile.js', false);
 
-            test(   "tplAddJavascript('/js/anotherfile.js'); + previous",
+            test(   "tplAddJavascript('/includes/js/anotherfile.js', false); + previous",
                     $c->item('js', 'hAtsData'),
-                    array(array('js'=>'/js/testfile', 'intheme'=>true), array('js'=>'/js/anotherfile.js', 'intheme'=>true))
+                    array(array('js'=>'testfile', 'intheme'=>true), array('js'=>'/includes/js/anotherfile.js', 'intheme'=>false)),
+                    "NOTE: Adding javascript outside theme (false specified) - path is assumed to be from root.\nFile extension specified by not required."
+                    );
+
+        tplAddJavascript('http://somewebsite.com/js/remotefile.js', false);
+
+            test(   "tplAddJavascript('http://somewebsite.com/js/remotefile.js', false); + previous",
+                    $c->item('js', 'hAtsData'),
+                    array(array('js'=>'testfile', 'intheme'=>true), array('js'=>'/includes/js/anotherfile.js', 'intheme'=>false), array('js'=>'http://somewebsite.com/js/remotefile.js', 'intheme'=>false)),
+                    "NOTE: Adding javascript from a remote web url. False passed to indicate file is not in theme."
                     );
 
         /* retireve stacked javascripts */
 
             test(   'tplJavascripts()',
                     tplJavascripts(),
-                    "<script type='text/javascript' src='./testfile.js'></script>\n<script type='text/javascript' src='./anotherfile.js'></script>\n",
-                    "NOTE: /js is stripped from src path when traversal failed to find the requested file!"
+                    "<script type='text/javascript' src='{$bu}/hAts/theme/hAts_default/js/hAts_default/testfile.js'></script>\n<script type='text/javascript' src='{$bu}/includes/js/anotherfile.js'></script>\n<script type='text/javascript' src='http://somewebsite.com/js/remotefile.js'></script>\n",
+                    "NOTE: Base urls are added automatically to first two script blocks. Third block had url starting 'http' therefore it was left as-is!"
                     );
 
         /* unset js array element */
@@ -207,8 +216,8 @@ class Hats_tests extends CI_Controller {
 
             test(   'tplJavascripts()',
                     tplJavascripts(),
-                    "<script type='text/javascript' src='/js/file-not-in-theme.js'></script>\n",
-                    "NOTE: /js is NOT stripped from src path because 'intheme' is false and no traversal happens!"
+                    "<script type='text/javascript' src='{$bu}/js/file-not-in-theme.js'></script>\n",
+                    "NOTE: 'intheme' is false and no traversal happens!"
                     );
 
 
@@ -254,16 +263,16 @@ class Hats_tests extends CI_Controller {
 
             test(   "tplJavascript('/some/path/to/a/test-javascript', false);",
                     tplJavascript('/some/path/to/a/test-javascript', false),
-                    "<script type='text/javascript' src='/some/path/to/a/test-javascript.js'></script>\n",
-                    "NOTE: Now calling tplJavascript() directly which shouldn't add an entry onto the stack but return it as a string.\n'/some/path/to/a' has been NOT stripped as file is not in theme (false specified)."
+                    "<script type='text/javascript' src='{$bu}/some/path/to/a/test-javascript.js'></script>\n",
+                    "NOTE: Now calling tplJavascript() directly which shouldn't add an entry onto the stack but return it as a string."
                     );
 
         /* get html code for a non-existent file */
 
             test(   "tplJavascript('/some/path/to/a/test-javascript');",
                     tplJavascript('/some/path/to/a/test-javascript'),
-                    "<script type='text/javascript' src='./test-javascript.js'></script>\n",
-                    "NOTE: Now calling tplJavascript() directly which shouldn't add an entry onto the stack but return it as a string.\n'/some/path/to/a' has been stripped as hAts searches unsuccessfully for the file."
+                    "<script type='text/javascript' src='{$bu}/hAts/theme/hAts_default/js/hAts_default/some/path/to/a/test-javascript.js'></script>\n",
+                    "NOTE: Now calling tplJavascript() directly which shouldn't add an entry onto the stack but return it as a string. File is in theme."
                     );
 
         /* retrieve stacked javascripts */
@@ -287,7 +296,8 @@ class Hats_tests extends CI_Controller {
 
     public function css() {
 
-        $c = $this->config;
+        $c  = $this->config;
+        $bu = rtrim($c->item('base_url'),'/');
 
         echo "<h1>hAts_helper CSS STYLESHEET TESTS</h1>";
         echo "<hr/>";
@@ -297,22 +307,32 @@ class Hats_tests extends CI_Controller {
 
             test(   "tplAddStylesheet('/includes/css/some-pretty-styling');",
                     $c->item('css', 'hAtsData'),
-                    array(array('css'=>'/includes/css/some-pretty-styling', 'intheme'=>true))
+                    array(array('css'=>'/includes/css/some-pretty-styling', 'intheme'=>true)),
+                    "NOTE: adding stylesheet within sub folder of theme folder!"
                     );
 
 
-        tplAddStylesheet('/includes/css/more-styles');
+        tplAddStylesheet('/includes/css/more-styles', false);
 
-            test(   "tplAddStylesheet('/includes/css/more-styles'); + previous",
+            test(   "tplAddStylesheet('/includes/css/more-styles', false); + previous",
                     $c->item('css', 'hAtsData'),
-                    array(array('css'=>'/includes/css/some-pretty-styling', 'intheme'=>true), array('css'=>'/includes/css/more-styles', 'intheme'=>true))
+                    array(array('css'=>'/includes/css/some-pretty-styling', 'intheme'=>true), array('css'=>'/includes/css/more-styles', 'intheme'=>false)),
+                    "NOTE: Second stylesheet outside theme folder (path assumed to be from root)!"
+                    );
+
+
+        tplAddStylesheet('http://somewebsite.com/css/remotefile.css', false);
+
+            test(   "tplAddStylesheet('http://somewebsite.com/css/remotefile.css', false); + previous",
+                    $c->item('css', 'hAtsData'),
+                    array(array('css'=>'/includes/css/some-pretty-styling', 'intheme'=>true), array('css'=>'/includes/css/more-styles', 'intheme'=>false), array('css'=>'http://somewebsite.com/css/remotefile.css', 'intheme'=>false)),
+                    "NOTE: Third stylesheet is from a remote web url. False passed to indicate file is not in theme."
                     );
 
         /* retrieve stacked javascripts */
-
             test(   'tplStylesheets()',
                     tplStylesheets(),
-                    "<link rel='stylesheet' href='./some-pretty-styling.css' type='text/css'>\n<link rel='stylesheet' href='./more-styles.css' type='text/css'>\n",
+                    "<link rel='stylesheet' href='{$bu}/hAts/theme/hAts_default/css/hAts_default/includes/css/some-pretty-styling.css' type='text/css'>\n<link rel='stylesheet' href='{$bu}/includes/css/more-styles.css' type='text/css'>\n<link rel='stylesheet' href='http://somewebsite.com/css/remotefile.css' type='text/css'>\n",
                     "NOTE: showing stacked stylesheets."
                     );
 
@@ -325,8 +345,8 @@ class Hats_tests extends CI_Controller {
 
             test(   "tplStylesheet('/some/path/to/a/test-stylesheet');",
                     tplStylesheet('/some/path/to/a/test-stylesheet'),
-                    "<link rel='stylesheet' href='./test-stylesheet.css' type='text/css'>\n",
-                    "NOTE: Now calling tplStylesheet() directly which shouldn't add an entry onto the stack but return it as a string.\n'/some/path/to/a' has been stripped as hAts searches unsuccessfully for the file."
+                    "<link rel='stylesheet' href='{$bu}/hAts/theme/hAts_default/css/hAts_default/some/path/to/a/test-stylesheet.css' type='text/css'>\n",
+                    "NOTE: Now calling tplStylesheet() directly which shouldn't add an entry onto the stack but return it as a string."
                     );
 
 
@@ -334,8 +354,8 @@ class Hats_tests extends CI_Controller {
 
             test(   "tplStylesheet('/some/path/to/a/test-stylesheet', false);",
                     tplStylesheet('/some/path/to/a/test-stylesheet', false),
-                    "<link rel='stylesheet' href='/some/path/to/a/test-stylesheet.css' type='text/css'>\n",
-                    "NOTE: Now calling tplStylesheet() directly which shouldn't add an entry onto the stack but return it as a string.\n'/some/path/to/a' has NOT been stripped as file is not in theme (false specified)."
+                    "<link rel='stylesheet' href='{$bu}/some/path/to/a/test-stylesheet.css' type='text/css'>\n",
+                    "NOTE: Now calling tplStylesheet() directly which shouldn't add an entry onto the stack but return it as a string.\nFile is not in theme (false specified) so it is assumed a full path from root is provided."
                     );
 
         /* retrieve stacked javascripts */
@@ -358,7 +378,8 @@ class Hats_tests extends CI_Controller {
 
     public function img() {
 
-        $c = $this->config;
+        $c  = $this->config;
+        $bu = rtrim($c->item('base_url'),'/');
 
         echo "<h1>hAts_helper IMAGE TESTS</h1>";
         echo "<hr/>";
@@ -366,14 +387,20 @@ class Hats_tests extends CI_Controller {
 
             test(   "tplImage('sub/path/to/a-test-image');",
                     tplImage('sub/path/to/a-test-image'),
-                    './a-test-image',
-                    'NOTE: sub/path/to has been removed as hAts searches for the specified file.'
+                    "{$bu}/hAts/theme/hAts_default/img/hAts_default/sub/path/to/a-test-image",
+                    'NOTE: File is within theme. Base url added automaticaly.'
                     );
 
             test(   "tplImage('sub/path/to/a-test-image', false);",
                     tplImage('sub/path/to/a-test-image', false),
-                    'sub/path/to/a-test-image',
-                    'NOTE: sub/path/to has NOT been removed as the file is not within theme (false specified).'
+                    "{$bu}/sub/path/to/a-test-image",
+                    'NOTE: File is not in theme (false specified) so path is assumed to start from root.'
+                    );
+
+            test(   "tplImage('http://somewebsite.com/img/remoteimg.jpg', false);",
+                    tplImage('http://somewebsite.com/img/remoteimg.jpg', false),
+                    "http://somewebsite.com/img/remoteimg.jpg",
+                    "NOTE: File is from a remote web url. False passed to indicate file is not in theme."
                     );
 
 

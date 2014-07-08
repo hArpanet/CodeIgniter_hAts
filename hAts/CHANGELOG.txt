@@ -6,6 +6,19 @@ Key: + = something added
      : = a comment or further info
 ==================================
 
+---------------------
+v2.1.1 - 05-July-2014
+---------------------
+: Update to fix various internal path references
+
+hats_helper.php
++ Allow CSS, JS and Image paths to now contain external URLs (start path with http://)
+
+hats_tests.php
+~ Updated to test new paths
+
+
+
 --------------------
 v2.1.0 - 29-May-2014
 --------------------

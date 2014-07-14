@@ -10,6 +10,8 @@ Key: + = something added
 v2.1.1 - 05-July-2014
 ---------------------
 : Update to fix various internal path references
+: Now Licensed under GPL v3+
+: Now fully documented up to v2.1.1 at http://harpanet.com/programming/php/codeigniter/hats
 
 hats_helper.php
 + Allow CSS, JS and Image paths to now contain external URLs (start path with http://)

@@ -1,12 +1,26 @@
 <?php  if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 
 /**
- * hArpanet Template System (hATS) helper
+ * hArpanet Asset & Template System (hATS) helper
  *
  * @package     hATS
  * @author      DH
- * @copyright   Copyright (c) 2012+, hArpanet
- * @license     http://codeigniter.com/user_guide/license.html
+ * @copyright   Copyright (c) 2012-2014, hArpanet.com
+ *
+ * @license
+ *
+ *   This program is free software: you can redistribute it and/or modify
+ *   it under the terms of the GNU General Public License as published by
+ *   the Free Software Foundation, either version 3 of the License, or
+ *   (at your option) any later version.
+ *
+ *   This program is distributed in the hope that it will be useful,
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *   GNU General Public License for more details.
+ *
+ *   See <http://www.gnu.org/licenses/> for a full copy of this license.
+ *
  * @link        http://harpanet.com
  * @version     Version 2.1.1 / 140705
  *
